@@ -55,10 +55,10 @@ export default function FeaturesSection() {
   }, []);
 
   return (
-    <section className="w-full py-16 md:py-24 bg-white">
+    <section className="w-full py-16 md:py-24 bg-white dark:bg-gray-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-8 flex flex-col items-center">
         <motion.h2
-          className="text-3xl md:text-4xl font-bold text-gray-900 mb-3 text-center"
+          className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-3 text-center"
           initial={{ opacity: 0, y: -30 }}
           animate={show ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.7, type: "spring" }}
@@ -66,7 +66,7 @@ export default function FeaturesSection() {
           Everything You Need to Succeed
         </motion.h2>
         <motion.p
-          className="text-lg text-gray-600 mb-10 text-center max-w-2xl"
+          className="text-lg text-gray-600 dark:text-gray-300 mb-10 text-center max-w-2xl"
           initial={{ opacity: 0, y: 20 }}
           animate={show ? { opacity: 1, y: 0 } : {}}
           transition={{ delay: 0.2, duration: 0.6, type: "spring" }}
@@ -82,22 +82,22 @@ export default function FeaturesSection() {
           {features.map((feature, idx) => (
             <motion.div
               key={feature.title}
-              className="bg-blue-50 border border-blue-100 rounded-2xl p-6 flex flex-col items-start shadow-sm hover:shadow-xl transition-shadow duration-300 group cursor-pointer"
+              className="bg-blue-50 dark:bg-gray-800 border border-blue-100 dark:border-gray-700 rounded-2xl p-6 flex flex-col items-start shadow-sm hover:shadow-xl transition-shadow duration-300 group cursor-pointer"
               variants={card}
               whileHover={{ scale: 1.06, rotateY: 8, boxShadow: "0 8px 32px #2563eb22" }}
               style={{ perspective: 800 }}
             >
               <motion.div
-                className="text-3xl mb-4 bg-white rounded-full p-2 shadow group-hover:bg-blue-100 transition-colors duration-200"
+                className="text-3xl mb-4 bg-white dark:bg-gray-700 rounded-full p-2 shadow group-hover:bg-blue-100 dark:group-hover:bg-gray-600 transition-colors duration-200"
                 whileHover={{ rotate: 12, scale: 1.2 }}
                 transition={{ type: "spring", stiffness: 300 }}
               >
                 {feature.icon}
               </motion.div>
-              <h3 className="text-xl font-semibold text-blue-700 mb-2">
+              <h3 className="text-xl font-semibold text-blue-700 dark:text-blue-400 mb-2">
                 {feature.title}
               </h3>
-              <p className="text-gray-600 text-base">
+              <p className="text-gray-600 dark:text-gray-300 text-base">
                 {feature.desc}
               </p>
             </motion.div>

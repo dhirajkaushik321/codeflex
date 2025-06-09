@@ -10,7 +10,7 @@ export default function CallToActionSection() {
 
   return (
     <motion.section
-      className="w-full py-16 md:py-20 bg-gradient-to-r from-blue-600 to-indigo-500"
+      className="w-full py-16 md:py-20 bg-gradient-to-r from-blue-600 to-indigo-500 dark:from-blue-700 dark:to-indigo-700"
       initial={{ opacity: 0, y: 80 }}
       animate={show ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.8, type: "spring" }}
@@ -24,7 +24,7 @@ export default function CallToActionSection() {
           Ready to Land Your Dream Job?
         </motion.h2>
         <motion.p
-          className="text-lg text-blue-100 mb-6 max-w-2xl"
+          className="text-lg text-blue-100 dark:text-blue-200 mb-6 max-w-2xl"
           initial={{ opacity: 0, y: 20 }}
           animate={show ? { opacity: 1, y: 0 } : {}}
           transition={{ delay: 0.2, duration: 0.6, type: "spring" }}
@@ -35,14 +35,14 @@ export default function CallToActionSection() {
           <motion.a
             href="#"
             whileHover={{ scale: 1.08, boxShadow: "0 4px 24px #fff6" }}
-            className="px-6 py-3 bg-white text-blue-700 font-semibold rounded-lg shadow hover:bg-blue-50 transition-colors duration-200 text-base cursor-pointer"
+            className="px-6 py-3 bg-white dark:bg-gray-100 text-blue-700 dark:text-blue-800 font-semibold rounded-lg shadow hover:bg-blue-50 dark:hover:bg-gray-200 transition-colors duration-200 text-base cursor-pointer"
           >
             Start Free Trial
           </motion.a>
           <motion.a
             href="#"
             whileHover={{ scale: 1.08, boxShadow: "0 4px 24px #fff6" }}
-            className="px-6 py-3 bg-blue-700 text-white font-semibold rounded-lg border border-white hover:bg-white hover:text-blue-700 transition-colors duration-200 text-base cursor-pointer"
+            className="px-6 py-3 bg-blue-700 dark:bg-blue-800 text-white font-semibold rounded-lg border border-white dark:border-gray-200 hover:bg-white dark:hover:bg-gray-100 hover:text-blue-700 dark:hover:text-blue-800 transition-colors duration-200 text-base cursor-pointer"
           >
             View Pricing
           </motion.a>
