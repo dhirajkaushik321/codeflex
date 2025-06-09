@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import Image from "next/image";
 
 const testimonials = [
   {
@@ -70,7 +71,7 @@ export default function TestimonialsSection() {
           initial="hidden"
           animate={show ? "show" : "hidden"}
         >
-          {testimonials.map((t, idx) => (
+          {testimonials.map((t) => (
             <motion.div
               key={t.name}
               className="bg-white dark:bg-gray-900 border border-blue-100 dark:border-gray-700 rounded-2xl p-6 flex flex-col items-start shadow-md hover:shadow-2xl transition-shadow duration-300 cursor-pointer"
@@ -78,10 +79,12 @@ export default function TestimonialsSection() {
               whileHover={{ scale: 1.04, boxShadow: "0 8px 32px #2563eb22" }}
             >
               <div className="flex items-center gap-4 mb-4">
-                <img
+                <Image
                   src={t.avatar}
                   alt={t.name}
                   className="w-12 h-12 rounded-full object-cover border border-gray-200 dark:border-gray-600 bg-gray-100 dark:bg-gray-700"
+                  width={48}
+                  height={48}
                   onError={e => (e.currentTarget.src = 'https://api.dicebear.com/7.x/thumbs/svg?seed=' + encodeURIComponent(t.name))}
                 />
                 <div>

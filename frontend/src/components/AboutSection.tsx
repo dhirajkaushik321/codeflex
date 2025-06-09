@@ -47,7 +47,7 @@ export default function AboutSection() {
             className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-12"
             variants={item}
           >
-            We're on a mission to democratize technical interview preparation. Our platform combines 
+            We&apos;re on a mission to democratize technical interview preparation. Our platform combines 
             cutting-edge AI technology with proven learning methodologies to help developers of all 
             levels succeed in their career goals.
           </motion.p>
@@ -59,7 +59,7 @@ export default function AboutSection() {
             initial="hidden"
             animate={show ? "show" : "hidden"}
           >
-            {stats.map((stat, index) => (
+            {stats.map((stat) => (
               <motion.div
                 key={stat.label}
                 className="text-center"
