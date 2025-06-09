@@ -82,13 +82,13 @@ export default function Navbar() {
             </motion.span>
           </button>
           <Link
-            href="/signin"
+            href="/auth/developer/login"
             className="px-4 py-2 text-sm font-semibold text-blue-600 dark:text-blue-400 hover:text-white dark:hover:text-white border border-blue-600 dark:border-blue-400 rounded-lg hover:bg-blue-600 dark:hover:bg-blue-600 transition-colors duration-200"
           >
             Sign In
           </Link>
           <Link
-            href="/get-started"
+            href="/auth"
             className="px-4 py-2 text-sm font-semibold text-white bg-blue-600 dark:bg-blue-600 rounded-lg shadow hover:bg-blue-700 dark:hover:bg-blue-700 transition-colors duration-200"
           >
             Get Started
