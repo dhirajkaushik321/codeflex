@@ -2,7 +2,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useTheme } from 'next-themes';
-import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 
 // Mock user data - in real app this would come from API/context
@@ -53,8 +52,6 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-      <Navbar />
-      
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Welcome Header */}
         <motion.div

@@ -2,6 +2,8 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from 'next-themes';
+import { useAuth } from '../contexts/AuthContext';
+import SuccessCelebration from './SuccessCelebration';
 
 interface FormData {
   // Basic Info
@@ -115,8 +117,10 @@ export default function DeveloperSignupForm({ onComplete }: { onComplete?: () =>
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [mounted, setMounted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showSuccessCelebration, setShowSuccessCelebration] = useState(false);
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === 'dark';
+  const { updateUser } = useAuth();
 
   useEffect(() => {
     setMounted(true);
@@ -172,10 +176,18 @@ export default function DeveloperSignupForm({ onComplete }: { onComplete?: () =>
       // Simulate API delay
       await new Promise(resolve => setTimeout(resolve, 1500));
       
-      // Call the completion callback
-      if (onComplete) {
-        onComplete();
-      }
+      // Show success celebration
+      setShowSuccessCelebration(true);
+      
+      // Call the completion callback after celebration
+      setTimeout(() => {
+        if (onComplete) {
+          onComplete();
+        }
+      }, 4000); // Wait for celebration to complete
+
+      // Update user profile completion
+      updateUser({ isProfileComplete: true });
     } catch (error) {
       console.error('Error submitting form:', error);
       // Handle error - show error message to user
@@ -202,135 +214,144 @@ export default function DeveloperSignupForm({ onComplete }: { onComplete?: () =>
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 py-12 px-4">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-8"
-        >
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            Complete Your Profile
-          </h1>
-          <p className="text-lg text-gray-600 dark:text-gray-300">
-            Help us tailor the perfect content and questions for your learning journey
-          </p>
-        </motion.div>
-
-        {/* Progress Bar */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="mb-8"
-        >
-          <div className="flex items-center justify-between mb-4">
-            {steps.map((step, index) => (
-              <div key={step.id} className="flex items-center">
-                <div className="flex items-center">
-                  <motion.div
-                    className={`w-12 h-12 rounded-full flex items-center justify-center text-lg font-semibold transition-all duration-300 ${
-                      currentStep >= step.id
-                        ? 'bg-blue-600 text-white shadow-lg'
-                        : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
-                    }`}
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    {step.icon}
-                  </motion.div>
-                  <div className="ml-3">
-                    <p className="text-sm font-medium text-gray-900 dark:text-white">
-                      {step.title}
-                    </p>
-                  </div>
-                </div>
-                {index < steps.length - 1 && (
-                  <div
-                    className={`w-16 h-1 mx-4 transition-all duration-300 ${
-                      currentStep > step.id
-                        ? 'bg-blue-600'
-                        : 'bg-gray-200 dark:bg-gray-700'
-                    }`}
-                  />
-                )}
-              </div>
-            ))}
-          </div>
-        </motion.div>
-
-        {/* Form Content */}
-        <motion.div
-          key={currentStep}
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -20 }}
-          transition={{ duration: 0.3 }}
-          className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 mb-8"
-        >
-          {renderStepContent()}
-        </motion.div>
-
-        {/* Navigation */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex justify-between items-center"
-        >
-          <button
-            onClick={prevStep}
-            disabled={currentStep === 1}
-            className={`px-6 py-3 rounded-lg font-semibold transition-all duration-200 ${
-              currentStep === 1
-                ? 'bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed'
-                : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-            }`}
+    <>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 py-12 px-4">
+        <div className="max-w-4xl mx-auto">
+          {/* Header */}
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center mb-8"
           >
-            Previous
-          </button>
+            <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+              Complete Your Profile
+            </h1>
+            <p className="text-lg text-gray-600 dark:text-gray-300">
+              Help us tailor the perfect content and questions for your learning journey
+            </p>
+          </motion.div>
 
-          <div className="flex gap-4">
+          {/* Progress Bar */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="mb-8"
+          >
+            <div className="flex items-center justify-between mb-4">
+              {steps.map((step, index) => (
+                <div key={step.id} className="flex items-center">
+                  <div className="flex items-center">
+                    <motion.div
+                      className={`w-12 h-12 rounded-full flex items-center justify-center text-lg font-semibold transition-all duration-300 ${
+                        currentStep >= step.id
+                          ? 'bg-blue-600 text-white shadow-lg'
+                          : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
+                      }`}
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      {step.icon}
+                    </motion.div>
+                    <div className="ml-3">
+                      <p className="text-sm font-medium text-gray-900 dark:text-white">
+                        {step.title}
+                      </p>
+                    </div>
+                  </div>
+                  {index < steps.length - 1 && (
+                    <div
+                      className={`w-16 h-1 mx-4 transition-all duration-300 ${
+                        currentStep > step.id
+                          ? 'bg-blue-600'
+                          : 'bg-gray-200 dark:bg-gray-700'
+                      }`}
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Form Content */}
+          <motion.div
+            key={currentStep}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.3 }}
+            className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 mb-8"
+          >
+            {renderStepContent()}
+          </motion.div>
+
+          {/* Navigation */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex justify-between items-center"
+          >
             <button
-              onClick={() => {
-                // Save progress functionality
-                console.log('Saving progress...');
-              }}
-              className="px-6 py-3 rounded-lg font-semibold bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-200"
+              onClick={prevStep}
+              disabled={currentStep === 1}
+              className={`px-6 py-3 rounded-lg font-semibold transition-all duration-200 ${
+                currentStep === 1
+                  ? 'bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed'
+                  : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+              }`}
             >
-              Save Progress
+              Previous
             </button>
 
-            {currentStep === steps.length ? (
+            <div className="flex gap-4">
               <button
-                onClick={handleSubmit}
-                disabled={isSubmitting}
-                className={`px-8 py-3 rounded-lg font-semibold transition-all duration-200 ${
-                  isSubmitting
-                    ? 'bg-gray-400 dark:bg-gray-600 text-white cursor-not-allowed'
-                    : 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg hover:shadow-xl'
-                }`}
+                onClick={() => {
+                  // Save progress functionality
+                  console.log('Saving progress...');
+                }}
+                className="px-6 py-3 rounded-lg font-semibold bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-200"
               >
-                {isSubmitting ? (
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    Completing...
-                  </div>
-                ) : (
-                  'Complete Profile'
-                )}
+                Save Progress
               </button>
-            ) : (
-              <button
-                onClick={nextStep}
-                className="px-8 py-3 rounded-lg font-semibold bg-blue-600 text-white hover:bg-blue-700 shadow-lg hover:shadow-xl transition-all duration-200"
-              >
-                Next
-              </button>
-            )}
-          </div>
-        </motion.div>
+
+              {currentStep === steps.length ? (
+                <button
+                  onClick={handleSubmit}
+                  disabled={isSubmitting}
+                  className={`px-8 py-3 rounded-lg font-semibold transition-all duration-200 ${
+                    isSubmitting
+                      ? 'bg-gray-400 dark:bg-gray-600 text-white cursor-not-allowed'
+                      : 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg hover:shadow-xl'
+                  }`}
+                >
+                  {isSubmitting ? (
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      Completing...
+                    </div>
+                  ) : (
+                    'Complete Profile'
+                  )}
+                </button>
+              ) : (
+                <button
+                  onClick={nextStep}
+                  className="px-8 py-3 rounded-lg font-semibold bg-blue-600 text-white hover:bg-blue-700 shadow-lg hover:shadow-xl transition-all duration-200"
+                >
+                  Next
+                </button>
+              )}
+            </div>
+          </motion.div>
+        </div>
       </div>
-    </div>
+
+      {/* Success Celebration */}
+      <SuccessCelebration
+        isVisible={showSuccessCelebration}
+        onComplete={() => setShowSuccessCelebration(false)}
+        message="Profile completed successfully! Welcome to CodeVeer. Let's start your learning journey!"
+      />
+    </>
   );
 }
 

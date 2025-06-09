@@ -55,7 +55,7 @@ export default function FeaturesSection() {
   }, []);
 
   return (
-    <section className="w-full py-16 md:py-24 bg-white dark:bg-gray-900">
+    <section id="features" className="w-full py-16 md:py-24 bg-white dark:bg-gray-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-8 flex flex-col items-center">
         <motion.h2
           className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-3 text-center"

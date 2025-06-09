@@ -55,7 +55,7 @@ export default function HeroSection() {
   }
 
   return (
-    <section className="w-full py-16 md:py-24 bg-gradient-to-br from-blue-50 via-white to-blue-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <section id="home" className="w-full py-16 md:py-24 bg-gradient-to-br from-blue-50 via-white to-blue-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-8 flex flex-col md:flex-row items-center gap-12">
         {/* Left: Text */}
         <motion.div
