@@ -11,6 +11,7 @@ const navLinks = [
   { name: "Hackathons", href: "/hackathons" },
   { name: "AI Mock Interviews", href: "/ai-mock-interviews" },
   { name: "Resume Maker", href: "/resume-maker" },
+  { name: "Complete Profile", href: "/signup" },
 ];
 
 export default function Navbar() {

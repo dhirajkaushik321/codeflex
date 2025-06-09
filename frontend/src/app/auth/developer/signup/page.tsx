@@ -1,37 +1,6 @@
 'use client';
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import AuthForm, { AuthFormData } from '@/components/AuthForm';
+import UnifiedAuthForm from '@/components/UnifiedAuthForm';
 
 export default function DeveloperSignupPage() {
-  const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
-
-  const handleSubmit = async (data: AuthFormData) => {
-    setIsLoading(true);
-    
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Here you would typically make an API call to register
-      console.log('Developer signup:', data);
-      
-      // Redirect to developer dashboard
-      router.push('/dashboard/developer');
-    } catch (error) {
-      console.error('Signup failed:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  return (
-    <AuthForm
-      type="signup"
-      userType="developer"
-      onSubmit={handleSubmit}
-      isLoading={isLoading}
-    />
-  );
+  return <UnifiedAuthForm />;
 } 
