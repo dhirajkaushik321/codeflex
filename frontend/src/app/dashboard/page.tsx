@@ -3,6 +3,8 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useTheme } from 'next-themes';
 import Image from 'next/image';
+import Link from 'next/link';
+import { User, ArrowRight } from 'lucide-react';
 import Footer from '../../components/Footer';
 import { getSignedImageUrl } from '../../utils/imageUtils';
 
@@ -176,6 +178,16 @@ export default function DashboardPage() {
                     {userData.careerGoals}
                   </p>
                 </div>
+
+                {/* Profile Link */}
+                <Link
+                  href="/profile"
+                  className="mt-6 w-full flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200"
+                >
+                  <User size={16} />
+                  <span>View Full Profile</span>
+                  <ArrowRight size={16} />
+                </Link>
               </div>
             </div>
           </motion.div>

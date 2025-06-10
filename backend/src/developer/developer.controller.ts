@@ -18,6 +18,7 @@ import {
   UpdateProfilePictureDto,
   UploadProfilePictureResponseDto 
 } from './dto/upload-profile-picture.dto';
+import { UpdateDeveloperProfileDto } from './dto/create-developer.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('developer')
@@ -100,6 +101,28 @@ export class DeveloperController {
     }
   }
 
+  @Put('profile')
+  async updateProfile(
+    @Request() req,
+    @Body() updateDeveloperProfileDto: UpdateDeveloperProfileDto,
+  ) {
+    this.logger.log(`PUT /developer/profile - User ID: ${req.user.userId}`);
+    this.logger.log(`Request body: ${JSON.stringify(updateDeveloperProfileDto)}`);
+
+    try {
+      const result = await this.developerService.updateDeveloperProfile(
+        req.user.userId,
+        updateDeveloperProfileDto,
+      );
+
+      this.logger.log(`Successfully updated profile for user ${req.user.userId}`);
+      return result;
+    } catch (error) {
+      this.logger.error(`Failed to update profile for user ${req.user.userId}: ${error.message}`, error.stack);
+      throw error;
+    }
+  }
+
   @Post('signed-url')
   async generateSignedUrl(
     @Request() req,
@@ -109,9 +132,9 @@ export class DeveloperController {
     this.logger.log(`Request body: ${JSON.stringify(body)}`);
 
     try {
-      const signedUrl = await this.developerService.generateSignedViewUrl(body.fileUrl);
+      const result = await this.developerService.generateSignedViewUrl(body.fileUrl);
       this.logger.log(`Successfully generated signed URL for user ${req.user.userId}`);
-      return { signedUrl };
+      return result;
     } catch (error) {
       this.logger.error(`Failed to generate signed URL for user ${req.user.userId}: ${error.message}`, error.stack);
       throw error;

@@ -4,6 +4,7 @@ import { Model } from 'mongoose';
 import { Developer, DeveloperDocument } from './schemas/developer.schema';
 import { S3Service } from './s3.service';
 import { GenerateUploadUrlDto, UpdateProfilePictureDto } from './dto/upload-profile-picture.dto';
+import { UpdateDeveloperProfileDto } from './dto/create-developer.dto';
 
 @Injectable()
 export class DeveloperService {
@@ -118,16 +119,37 @@ export class DeveloperService {
     return { message: 'Profile picture deleted successfully' };
   }
 
+  async updateDeveloperProfile(
+    userId: string,
+    updateDeveloperProfileDto: UpdateDeveloperProfileDto,
+  ) {
+    this.logger.log(`Updating developer profile for user ${userId}`);
+    this.logger.log(`Update data: ${JSON.stringify(updateDeveloperProfileDto)}`);
+
+    const developer = await this.developerModel.findById(userId);
+    
+    if (!developer) {
+      this.logger.error(`Developer not found for user ID: ${userId}`);
+      throw new NotFoundException('Developer not found');
+    }
+
+    this.logger.log(`Found developer: ${developer.firstName} ${developer.lastName}`);
+
+    // Update all fields from the DTO
+    Object.assign(developer, updateDeveloperProfileDto);
+    
+    // Mark profile as complete
+    developer.isProfileComplete = true;
+
+    await developer.save();
+
+    this.logger.log(`Successfully updated developer profile for user ${userId}`);
+    return developer;
+  }
+
   async generateSignedViewUrl(fileUrl: string) {
     this.logger.log(`Generating signed view URL for: ${fileUrl}`);
-    
-    try {
-      const signedUrl = await this.s3Service.generateSignedViewUrl(fileUrl);
-      this.logger.log(`Successfully generated signed view URL`);
-      return signedUrl;
-    } catch (error) {
-      this.logger.error(`Failed to generate signed view URL: ${error.message}`, error.stack);
-      throw error;
-    }
+    const signedUrl = await this.s3Service.generateSignedViewUrl(fileUrl);
+    return { signedUrl };
   }
 }

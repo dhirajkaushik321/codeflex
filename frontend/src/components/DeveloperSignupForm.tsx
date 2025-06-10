@@ -214,24 +214,28 @@ export default function DeveloperSignupForm({ onComplete }: { onComplete?: () =>
     setIsSubmitting(true);
     
     try {
-      // First, create the basic account if not already done
-      const signupData = {
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
-        password: 'temp_password_123', // This should be collected in a previous step
-        phone: formData.phone,
-        location: formData.location,
-        linkedinUrl: formData.linkedinUrl,
-        githubUrl: formData.githubUrl,
-      };
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        throw new Error('Authentication required');
+      }
 
-      // For now, we'll simulate the API call
-      // In a real app, you'd call: await apiService.signup(signupData);
-      console.log('Form submitted:', formData);
-      
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Send the complete form data to the backend
+      const response = await fetch('/api/developer/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to update profile');
+      }
+
+      const updatedProfile = await response.json();
+      console.log('Profile updated successfully:', updatedProfile);
       
       // Show success celebration
       setShowSuccessCelebration(true);
@@ -247,7 +251,8 @@ export default function DeveloperSignupForm({ onComplete }: { onComplete?: () =>
       updateUser({ isProfileComplete: true });
     } catch (error) {
       console.error('Error submitting form:', error);
-      // Handle error - show error message to user
+      // Show error message to user - you can add a toast notification here
+      alert(`Error: ${error instanceof Error ? error.message : 'Failed to update profile'}`);
     } finally {
       setIsSubmitting(false);
     }
