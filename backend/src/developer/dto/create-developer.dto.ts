@@ -1,4 +1,30 @@
-import { IsEmail, IsString, IsOptional, IsArray, MinLength } from 'class-validator';
+import { IsEmail, IsString, IsOptional, IsArray, MinLength, IsBoolean, IsDateString } from 'class-validator';
+
+// Experience interface
+export interface Experience {
+  id?: string;
+  title: string;
+  company: string;
+  location?: string;
+  startDate: string;
+  endDate?: string;
+  isCurrent: boolean;
+  description?: string;
+  technologies?: string[];
+}
+
+// Education interface
+export interface Education {
+  id?: string;
+  degree: string;
+  institution: string;
+  fieldOfStudy: string;
+  startDate: string;
+  endDate?: string;
+  isCurrent: boolean;
+  gpa?: string;
+  description?: string;
+}
 
 export class CreateDeveloperDto {
   @IsString()
@@ -81,6 +107,7 @@ export class UpdateDeveloperProfileDto {
   @IsString({ each: true })
   softSkills?: string[];
 
+  // Legacy single experience fields
   @IsOptional()
   @IsString()
   experienceLevel?: string;
@@ -97,6 +124,12 @@ export class UpdateDeveloperProfileDto {
   @IsString()
   company?: string;
 
+  // New multiple experiences support
+  @IsOptional()
+  @IsArray()
+  experiences?: Experience[];
+
+  // Legacy single education fields
   @IsOptional()
   @IsString()
   educationLevel?: string;
@@ -112,6 +145,11 @@ export class UpdateDeveloperProfileDto {
   @IsOptional()
   @IsString()
   graduationYear?: string;
+
+  // New multiple education support
+  @IsOptional()
+  @IsArray()
+  education?: Education[];
 
   @IsOptional()
   @IsArray()

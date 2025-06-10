@@ -3,6 +3,32 @@ import { Document } from 'mongoose';
 
 export type DeveloperDocument = Developer & Document;
 
+// Experience interface
+export interface Experience {
+  id?: string;
+  title: string;
+  company: string;
+  location?: string;
+  startDate: string;
+  endDate?: string;
+  isCurrent: boolean;
+  description?: string;
+  technologies?: string[];
+}
+
+// Education interface
+export interface Education {
+  id?: string;
+  degree: string;
+  institution: string;
+  fieldOfStudy: string;
+  startDate: string;
+  endDate?: string;
+  isCurrent: boolean;
+  gpa?: string;
+  description?: string;
+}
+
 @Schema({ timestamps: true })
 export class Developer {
   @Prop({ required: true })
@@ -47,6 +73,7 @@ export class Developer {
   @Prop({ type: [String], default: [] })
   softSkills: string[];
 
+  // Legacy single experience fields (for backward compatibility)
   @Prop()
   experienceLevel?: string;
 
@@ -59,6 +86,11 @@ export class Developer {
   @Prop()
   company?: string;
 
+  // New multiple experiences support
+  @Prop({ type: [Object], default: [] })
+  experiences: Experience[];
+
+  // Legacy single education fields (for backward compatibility)
   @Prop()
   educationLevel?: string;
 
@@ -70,6 +102,10 @@ export class Developer {
 
   @Prop()
   graduationYear?: string;
+
+  // New multiple education support
+  @Prop({ type: [Object], default: [] })
+  education: Education[];
 
   @Prop({ type: [String], default: [] })
   preferredJobRoles: string[];
