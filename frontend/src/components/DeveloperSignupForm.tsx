@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from 'next-themes';
 import { useAuth } from '../contexts/AuthContext';
 import SuccessCelebration from './SuccessCelebration';
+import ProfilePictureUpload from './ProfilePictureUpload';
 
 interface FormData {
   // Basic Info
@@ -14,6 +15,7 @@ interface FormData {
   location: string;
   linkedinUrl: string;
   githubUrl: string;
+  profilePicture: string;
   
   // Skills
   programmingLanguages: string[];
@@ -49,6 +51,7 @@ const initialFormData: FormData = {
   location: '',
   linkedinUrl: '',
   githubUrl: '',
+  profilePicture: '',
   programmingLanguages: [],
   frameworks: [],
   databases: [],
@@ -121,6 +124,60 @@ export default function DeveloperSignupForm({ onComplete }: { onComplete?: () =>
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === 'dark';
   const { updateUser } = useAuth();
+
+  // Load existing profile data on component mount
+  useEffect(() => {
+    const loadProfileData = async () => {
+      try {
+        const token = localStorage.getItem('authToken');
+        if (!token) return;
+
+        const response = await fetch('/api/developer/profile', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+
+        if (response.ok) {
+          const profileData = await response.json();
+          
+          // Update form data with existing profile information
+          setFormData(prev => ({
+            ...prev,
+            firstName: profileData.firstName || prev.firstName,
+            lastName: profileData.lastName || prev.lastName,
+            email: profileData.email || prev.email,
+            phone: profileData.phone || prev.phone,
+            location: profileData.location || prev.location,
+            linkedinUrl: profileData.linkedinUrl || prev.linkedinUrl,
+            githubUrl: profileData.githubUrl || prev.githubUrl,
+            profilePicture: profileData.profilePicture || prev.profilePicture,
+            programmingLanguages: profileData.programmingLanguages || prev.programmingLanguages,
+            frameworks: profileData.frameworks || prev.frameworks,
+            databases: profileData.databases || prev.databases,
+            tools: profileData.tools || prev.tools,
+            softSkills: profileData.softSkills || prev.softSkills,
+            experienceLevel: profileData.experienceLevel || prev.experienceLevel,
+            yearsOfExperience: profileData.yearsOfExperience || prev.yearsOfExperience,
+            currentRole: profileData.currentRole || prev.currentRole,
+            company: profileData.company || prev.company,
+            educationLevel: profileData.educationLevel || prev.educationLevel,
+            institution: profileData.institution || prev.institution,
+            fieldOfStudy: profileData.fieldOfStudy || prev.fieldOfStudy,
+            graduationYear: profileData.graduationYear || prev.graduationYear,
+            preferredJobRoles: profileData.preferredJobRoles || prev.preferredJobRoles,
+            codingInterests: profileData.codingInterests || prev.codingInterests,
+            preferredTechnologies: profileData.preferredTechnologies || prev.preferredTechnologies,
+            careerGoals: profileData.careerGoals || prev.careerGoals,
+          }));
+        }
+      } catch (error) {
+        console.error('Error loading profile data:', error);
+      }
+    };
+
+    loadProfileData();
+  }, []);
 
   useEffect(() => {
     setMounted(true);
@@ -366,6 +423,16 @@ function BasicInfoStep({ formData, updateFormData }: { formData: FormData; updat
         <p className="text-gray-600 dark:text-gray-300">
           Let's start with your basic information
         </p>
+      </div>
+
+      {/* Profile Picture Upload */}
+      <div className="mb-8">
+        <ProfilePictureUpload
+          currentImage={formData.profilePicture}
+          onImageUpload={(imageUrl) => updateFormData('profilePicture', imageUrl)}
+          onImageRemove={() => updateFormData('profilePicture', '')}
+          className="max-w-md mx-auto"
+        />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

@@ -2,7 +2,9 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useTheme } from 'next-themes';
+import Image from 'next/image';
 import Footer from '../../components/Footer';
+import { getSignedImageUrl } from '../../utils/imageUtils';
 
 // Mock user data - in real app this would come from API/context
 const mockUserData = {
@@ -41,6 +43,8 @@ const personalizedContent = {
 
 export default function DashboardPage() {
   const [mounted, setMounted] = useState(false);
+  const [profileData, setProfileData] = useState<any>(null);
+  const [signedProfilePicture, setSignedProfilePicture] = useState<string | null>(null);
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === 'dark';
 
@@ -48,7 +52,45 @@ export default function DashboardPage() {
     setMounted(true);
   }, []);
 
+  // Load profile data
+  useEffect(() => {
+    const loadProfileData = async () => {
+      try {
+        const token = localStorage.getItem('authToken');
+        if (!token) return;
+
+        const response = await fetch('/api/developer/profile', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setProfileData(data);
+          
+          // Get signed URL for profile picture if it exists
+          if (data.profilePicture) {
+            try {
+              const signedUrl = await getSignedImageUrl(data.profilePicture);
+              setSignedProfilePicture(signedUrl);
+            } catch (error) {
+              console.error('Error getting signed URL for profile picture:', error);
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error loading profile data:', error);
+      }
+    };
+
+    loadProfileData();
+  }, []);
+
   if (!mounted) return null;
+
+  // Use profile data if available, otherwise fall back to mock data
+  const userData = profileData || mockUserData;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
@@ -60,7 +102,7 @@ export default function DashboardPage() {
           className="text-center mb-12"
         >
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            Welcome back, {mockUserData.firstName}! 👋
+            Welcome back, {userData.firstName}! 👋
           </h1>
           <p className="text-lg text-gray-600 dark:text-gray-300">
             Here's your personalized learning dashboard
@@ -78,22 +120,32 @@ export default function DashboardPage() {
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6">
               <div className="text-center mb-6">
                 <div className="w-20 h-20 bg-blue-100 dark:bg-blue-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                    {mockUserData.firstName[0]}{mockUserData.lastName[0]}
-                  </span>
+                  {signedProfilePicture ? (
+                    <Image
+                      src={signedProfilePicture}
+                      alt={`${userData.firstName} ${userData.lastName}`}
+                      width={80}
+                      height={80}
+                      className="rounded-full"
+                    />
+                  ) : (
+                    <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                      {userData.firstName[0]}{userData.lastName[0]}
+                    </span>
+                  )}
                 </div>
                 <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-                  {mockUserData.firstName} {mockUserData.lastName}
+                  {userData.firstName} {userData.lastName}
                 </h2>
-                <p className="text-gray-600 dark:text-gray-300">{mockUserData.currentRole}</p>
-                <p className="text-sm text-gray-500 dark:text-gray-400">{mockUserData.company}</p>
+                <p className="text-gray-600 dark:text-gray-300">{userData.currentRole}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">{userData.company}</p>
               </div>
 
               <div className="space-y-4">
                 <div>
                   <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Skills</h3>
                   <div className="flex flex-wrap gap-2">
-                    {mockUserData.programmingLanguages.slice(0, 4).map((skill) => (
+                    {userData.programmingLanguages.slice(0, 4).map((skill: string) => (
                       <span
                         key={skill}
                         className="px-3 py-1 bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 text-sm rounded-full"
@@ -107,7 +159,7 @@ export default function DashboardPage() {
                 <div>
                   <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Interests</h3>
                   <div className="flex flex-wrap gap-2">
-                    {mockUserData.codingInterests.map((interest) => (
+                    {userData.codingInterests.map((interest: string) => (
                       <span
                         key={interest}
                         className="px-3 py-1 bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-300 text-sm rounded-full"
@@ -121,7 +173,7 @@ export default function DashboardPage() {
                 <div>
                   <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Career Goals</h3>
                   <p className="text-sm text-gray-700 dark:text-gray-300">
-                    {mockUserData.careerGoals}
+                    {userData.careerGoals}
                   </p>
                 </div>
               </div>

@@ -29,6 +29,9 @@ export class Developer {
   @Prop()
   githubUrl?: string;
 
+  @Prop()
+  profilePicture?: string;
+
   @Prop({ type: [String], default: [] })
   programmingLanguages: string[];
 

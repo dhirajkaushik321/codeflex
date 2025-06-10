@@ -29,6 +29,10 @@ async function bootstrap() {
     console.log('🌐 CORS Origin:', corsOrigin);
     console.log('🔗 MongoDB URI:', configService.get('database.uri') ? '***' : 'undefined');
     console.log('🔐 JWT Secret:', configService.get('jwt.secret') ? '***' : 'undefined');
+    console.log('☁️ AWS S3 Bucket:', configService.get('aws.s3BucketName') || 'undefined');
+    console.log('🌍 AWS Region:', configService.get('aws.region') || 'undefined');
+    console.log('🔑 AWS Access Key:', configService.get('aws.accessKeyId') ? 'Set' : 'Not set');
+    console.log('🔐 AWS Secret Key:', configService.get('aws.secretAccessKey') ? 'Set' : 'Not set');
   }
   
   await app.listen(port);
