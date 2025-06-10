@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import Image from "next/image";
 
 const testimonials = [
   {
@@ -8,21 +9,21 @@ const testimonials = [
     role: "Software Engineer at Google",
     text: "codeVeer helped me ace my technical interviews. The AI mock interviews are incredibly realistic and the coding challenges are top-notch.",
     stars: 5,
-    avatar: "/avatar1.png",
+    avatar: "/avatar1.jpeg",
   },
   {
     name: "Alex Rodriguez",
     role: "Senior Developer at Microsoft",
     text: "The system design section is fantastic. I learned more in a week than I did in months of self-study. Highly recommended!",
     stars: 5,
-    avatar: "/avatar2.png",
+    avatar: "/avatar1.jpeg",
   },
   {
     name: "Emily Watson",
     role: "Full Stack Developer at Amazon",
     text: "Gamified learning made interview prep fun instead of stressful. I landed my dream job thanks to codeVeer's comprehensive approach.",
     stars: 5,
-    avatar: "/avatar3.png",
+    avatar: "/avatar1.jpeg",
   },
 ];
 
@@ -78,12 +79,14 @@ export default function TestimonialsSection() {
               whileHover={{ scale: 1.04, boxShadow: "0 8px 32px #2563eb22" }}
             >
               <div className="flex items-center gap-4 mb-4">
-                <img
+                {/* Use next js Image component instead of img tag */}
+                <Image
                   src={t.avatar}
                   alt={t.name}
                   className="w-12 h-12 rounded-full object-cover border border-gray-200 dark:border-gray-600 bg-gray-100 dark:bg-gray-700"
-                  onError={e => (e.currentTarget.src = 'https://api.dicebear.com/7.x/thumbs/svg?seed=' + encodeURIComponent(t.name))}
-                />
+                  width={48}
+                  height={48}/>
+              
                 <div>
                   <div className="font-semibold text-gray-900 dark:text-white">{t.name}</div>
                   <div className="text-sm text-gray-500 dark:text-gray-400">{t.role}</div>
