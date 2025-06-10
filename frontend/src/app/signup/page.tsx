@@ -1,12 +1,12 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter, useSearchParams } from 'next/navigation';
 import DeveloperSignupForm from '../../components/DeveloperSignupForm';
 import ProfileFormTransition from '../../components/ProfileFormTransition';
 import Footer from '../../components/Footer';
 
-export default function SignupPage() {
+function SignupContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [showTransition, setShowTransition] = useState(false);
@@ -63,5 +63,17 @@ export default function SignupPage() {
       
       <Footer />
     </div>
+  );
+}
+
+export default function SignupPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      </div>
+    }>
+      <SignupContent />
+    </Suspense>
   );
 } 
