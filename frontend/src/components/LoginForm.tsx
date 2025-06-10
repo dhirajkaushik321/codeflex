@@ -128,7 +128,7 @@ export default function LoginForm() {
 
           <div className="text-center">
             <p className="text-sm text-gray-600 dark:text-gray-300">
-              Don&apos;t have an account?{' '}
+              Don't have an account?{' '}
               <button
                 type="button"
                 onClick={() => router.push('/signup')}

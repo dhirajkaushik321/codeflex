@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useTheme } from 'next-themes';
 import { useAuth } from '../contexts/AuthContext';
 import SuccessCelebration from './SuccessCelebration';
 
@@ -113,10 +114,12 @@ const codingInterests = [
 
 export default function DeveloperSignupForm({ onComplete }: { onComplete?: () => void }) {
   const [currentStep, setCurrentStep] = useState(1);
-  const [formData] = useState<FormData>(initialFormData);
+  const [formData, setFormData] = useState<FormData>(initialFormData);
   const [mounted, setMounted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccessCelebration, setShowSuccessCelebration] = useState(false);
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark';
   const { updateUser } = useAuth();
 
   useEffect(() => {
@@ -125,11 +128,48 @@ export default function DeveloperSignupForm({ onComplete }: { onComplete?: () =>
 
   if (!mounted) return null;
 
+  const updateFormData = (field: keyof FormData, value: any) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleArrayToggle = (field: keyof FormData, value: string) => {
+    const currentArray = formData[field] as string[];
+    if (currentArray.includes(value)) {
+      updateFormData(field, currentArray.filter(item => item !== value));
+    } else {
+      updateFormData(field, [...currentArray, value]);
+    }
+  };
+
+  const nextStep = () => {
+    if (currentStep < steps.length) {
+      setCurrentStep(currentStep + 1);
+    }
+  };
+
+  const prevStep = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
+
   const handleSubmit = async () => {
     setIsSubmitting(true);
     
     try {
       // First, create the basic account if not already done
+      const signupData = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        password: 'temp_password_123', // This should be collected in a previous step
+        phone: formData.phone,
+        location: formData.location,
+        linkedinUrl: formData.linkedinUrl,
+        githubUrl: formData.githubUrl,
+      };
+
+      // For now, we'll simulate the API call
       // In a real app, you'd call: await apiService.signup(signupData);
       console.log('Form submitted:', formData);
       
@@ -159,15 +199,15 @@ export default function DeveloperSignupForm({ onComplete }: { onComplete?: () =>
   const renderStepContent = () => {
     switch (currentStep) {
       case 1:
-        return <BasicInfoStep formData={formData} />;
+        return <BasicInfoStep formData={formData} updateFormData={updateFormData} />;
       case 2:
-        return <SkillsStep formData={formData} />;
+        return <SkillsStep formData={formData} updateFormData={updateFormData} handleArrayToggle={handleArrayToggle} />;
       case 3:
-        return <ExperienceStep formData={formData} />;
+        return <ExperienceStep formData={formData} updateFormData={updateFormData} />;
       case 4:
-        return <EducationStep formData={formData} />;
+        return <EducationStep formData={formData} updateFormData={updateFormData} />;
       case 5:
-        return <InterestsStep formData={formData} />;
+        return <InterestsStep formData={formData} updateFormData={updateFormData} handleArrayToggle={handleArrayToggle} />;
       default:
         return null;
     }
@@ -251,44 +291,56 @@ export default function DeveloperSignupForm({ onComplete }: { onComplete?: () =>
             className="flex justify-between items-center"
           >
             <button
-              onClick={() => {
-                // Save progress functionality
-                console.log('Saving progress...');
-              }}
-              className="px-6 py-3 rounded-lg font-semibold bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-200"
+              onClick={prevStep}
+              disabled={currentStep === 1}
+              className={`px-6 py-3 rounded-lg font-semibold transition-all duration-200 ${
+                currentStep === 1
+                  ? 'bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed'
+                  : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+              }`}
             >
-              Save Progress
+              Previous
             </button>
 
-            {currentStep === steps.length ? (
-              <button
-                onClick={handleSubmit}
-                disabled={isSubmitting}
-                className={`px-8 py-3 rounded-lg font-semibold transition-all duration-200 ${
-                  isSubmitting
-                    ? 'bg-gray-400 dark:bg-gray-600 text-white cursor-not-allowed'
-                    : 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg hover:shadow-xl'
-                }`}
-              >
-                {isSubmitting ? (
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    Completing...
-                  </div>
-                ) : (
-                  'Complete Profile'
-                )}
-              </button>
-            ) : (
+            <div className="flex gap-4">
               <button
                 onClick={() => {
-                  setCurrentStep(currentStep + 1);
+                  // Save progress functionality
+                  console.log('Saving progress...');
                 }}
-                className="px-8 py-3 rounded-lg font-semibold bg-blue-600 text-white hover:bg-blue-700 shadow-lg hover:shadow-xl transition-all duration-200"
+                className="px-6 py-3 rounded-lg font-semibold bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-200"
               >
-                Next
+                Save Progress
               </button>
-            )}
+
+              {currentStep === steps.length ? (
+                <button
+                  onClick={handleSubmit}
+                  disabled={isSubmitting}
+                  className={`px-8 py-3 rounded-lg font-semibold transition-all duration-200 ${
+                    isSubmitting
+                      ? 'bg-gray-400 dark:bg-gray-600 text-white cursor-not-allowed'
+                      : 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg hover:shadow-xl'
+                  }`}
+                >
+                  {isSubmitting ? (
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      Completing...
+                    </div>
+                  ) : (
+                    'Complete Profile'
+                  )}
+                </button>
+              ) : (
+                <button
+                  onClick={nextStep}
+                  className="px-8 py-3 rounded-lg font-semibold bg-blue-600 text-white hover:bg-blue-700 shadow-lg hover:shadow-xl transition-all duration-200"
+                >
+                  Next
+                </button>
+              )}
+            </div>
           </motion.div>
         </div>
       </div>
@@ -297,14 +349,14 @@ export default function DeveloperSignupForm({ onComplete }: { onComplete?: () =>
       <SuccessCelebration
         isVisible={showSuccessCelebration}
         onComplete={() => setShowSuccessCelebration(false)}
-        message="Profile completed successfully! Welcome to CodeVeer. Let&apos;s start your learning journey!"
+        message="Profile completed successfully! Welcome to CodeVeer. Let's start your learning journey!"
       />
     </>
   );
 }
 
 // Step Components
-function BasicInfoStep({ formData }: { formData: FormData }) {
+function BasicInfoStep({ formData, updateFormData }: { formData: FormData; updateFormData: (field: keyof FormData, value: any) => void }) {
   return (
     <div className="space-y-6">
       <div className="text-center mb-8">
@@ -312,7 +364,7 @@ function BasicInfoStep({ formData }: { formData: FormData }) {
           Tell us about yourself
         </h2>
         <p className="text-gray-600 dark:text-gray-300">
-          Let&apos;s start with your basic information
+          Let's start with your basic information
         </p>
       </div>
 
@@ -324,9 +376,7 @@ function BasicInfoStep({ formData }: { formData: FormData }) {
           <input
             type="text"
             value={formData.firstName}
-            onChange={(e) => {
-              setFormData(prev => ({ ...prev, firstName: e.target.value }));
-            }}
+            onChange={(e) => updateFormData('firstName', e.target.value)}
             className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all duration-200"
             placeholder="Enter your first name"
           />
@@ -339,9 +389,7 @@ function BasicInfoStep({ formData }: { formData: FormData }) {
           <input
             type="text"
             value={formData.lastName}
-            onChange={(e) => {
-              setFormData(prev => ({ ...prev, lastName: e.target.value }));
-            }}
+            onChange={(e) => updateFormData('lastName', e.target.value)}
             className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all duration-200"
             placeholder="Enter your last name"
           />
@@ -354,9 +402,7 @@ function BasicInfoStep({ formData }: { formData: FormData }) {
           <input
             type="email"
             value={formData.email}
-            onChange={(e) => {
-              setFormData(prev => ({ ...prev, email: e.target.value }));
-            }}
+            onChange={(e) => updateFormData('email', e.target.value)}
             className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all duration-200"
             placeholder="Enter your email"
           />
@@ -369,9 +415,7 @@ function BasicInfoStep({ formData }: { formData: FormData }) {
           <input
             type="tel"
             value={formData.phone}
-            onChange={(e) => {
-              setFormData(prev => ({ ...prev, phone: e.target.value }));
-            }}
+            onChange={(e) => updateFormData('phone', e.target.value)}
             className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all duration-200"
             placeholder="Enter your phone number"
           />
@@ -384,9 +428,7 @@ function BasicInfoStep({ formData }: { formData: FormData }) {
           <input
             type="text"
             value={formData.location}
-            onChange={(e) => {
-              setFormData(prev => ({ ...prev, location: e.target.value }));
-            }}
+            onChange={(e) => updateFormData('location', e.target.value)}
             className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all duration-200"
             placeholder="City, Country"
           />
@@ -399,9 +441,7 @@ function BasicInfoStep({ formData }: { formData: FormData }) {
           <input
             type="url"
             value={formData.linkedinUrl}
-            onChange={(e) => {
-              setFormData(prev => ({ ...prev, linkedinUrl: e.target.value }));
-            }}
+            onChange={(e) => updateFormData('linkedinUrl', e.target.value)}
             className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all duration-200"
             placeholder="https://linkedin.com/in/yourprofile"
           />
@@ -414,9 +454,7 @@ function BasicInfoStep({ formData }: { formData: FormData }) {
           <input
             type="url"
             value={formData.githubUrl}
-            onChange={(e) => {
-              setFormData(prev => ({ ...prev, githubUrl: e.target.value }));
-            }}
+            onChange={(e) => updateFormData('githubUrl', e.target.value)}
             className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all duration-200"
             placeholder="https://github.com/yourusername"
           />
@@ -426,8 +464,12 @@ function BasicInfoStep({ formData }: { formData: FormData }) {
   );
 }
 
-function SkillsStep({ formData }: { formData: FormData }) {
-  const renderSkillSection = (title: string, skills: string[]) => (
+function SkillsStep({ formData, updateFormData, handleArrayToggle }: { 
+  formData: FormData; 
+  updateFormData: (field: keyof FormData, value: any) => void;
+  handleArrayToggle: (field: keyof FormData, value: string) => void;
+}) {
+  const renderSkillSection = (title: string, skills: string[], field: keyof FormData) => (
     <div className="space-y-4">
       <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{title}</h3>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
@@ -435,21 +477,9 @@ function SkillsStep({ formData }: { formData: FormData }) {
           <motion.button
             key={skill}
             type="button"
-            onClick={() => {
-              if (formData.programmingLanguages.includes(skill)) {
-                setFormData(prev => ({
-                  ...prev,
-                  programmingLanguages: prev.programmingLanguages.filter(s => s !== skill)
-                }));
-              } else {
-                setFormData(prev => ({
-                  ...prev,
-                  programmingLanguages: [...prev.programmingLanguages, skill]
-                }));
-              }
-            }}
+            onClick={() => handleArrayToggle(field, skill)}
             className={`p-3 rounded-lg border-2 transition-all duration-200 text-sm font-medium ${
-              formData.programmingLanguages.includes(skill)
+              (formData[field] as string[]).includes(skill)
                 ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
                 : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:border-blue-300 dark:hover:border-blue-600'
             }`}
@@ -470,20 +500,20 @@ function SkillsStep({ formData }: { formData: FormData }) {
           What are your skills?
         </h2>
         <p className="text-gray-600 dark:text-gray-300">
-          Select all the technologies and skills you&apos;re familiar with
+          Select all the technologies and skills you're familiar with
         </p>
       </div>
 
-      {renderSkillSection('Programming Languages', programmingLanguages)}
-      {renderSkillSection('Frameworks & Libraries', frameworks)}
-      {renderSkillSection('Databases', databases)}
-      {renderSkillSection('Tools & Platforms', tools)}
-      {renderSkillSection('Soft Skills', softSkills)}
+      {renderSkillSection('Programming Languages', programmingLanguages, 'programmingLanguages')}
+      {renderSkillSection('Frameworks & Libraries', frameworks, 'frameworks')}
+      {renderSkillSection('Databases', databases, 'databases')}
+      {renderSkillSection('Tools & Platforms', tools, 'tools')}
+      {renderSkillSection('Soft Skills', softSkills, 'softSkills')}
     </div>
   );
 }
 
-function ExperienceStep({ formData }: { formData: FormData }) {
+function ExperienceStep({ formData, updateFormData }: { formData: FormData; updateFormData: (field: keyof FormData, value: any) => void }) {
   return (
     <div className="space-y-6">
       <div className="text-center mb-8">
@@ -502,9 +532,7 @@ function ExperienceStep({ formData }: { formData: FormData }) {
           </label>
           <select
             value={formData.experienceLevel}
-            onChange={(e) => {
-              setFormData(prev => ({ ...prev, experienceLevel: e.target.value }));
-            }}
+            onChange={(e) => updateFormData('experienceLevel', e.target.value)}
             className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all duration-200"
           >
             <option value="">Select experience level</option>
@@ -521,9 +549,7 @@ function ExperienceStep({ formData }: { formData: FormData }) {
           </label>
           <select
             value={formData.yearsOfExperience}
-            onChange={(e) => {
-              setFormData(prev => ({ ...prev, yearsOfExperience: e.target.value }));
-            }}
+            onChange={(e) => updateFormData('yearsOfExperience', e.target.value)}
             className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all duration-200"
           >
             <option value="">Select years</option>
@@ -542,9 +568,7 @@ function ExperienceStep({ formData }: { formData: FormData }) {
           <input
             type="text"
             value={formData.currentRole}
-            onChange={(e) => {
-              setFormData(prev => ({ ...prev, currentRole: e.target.value }));
-            }}
+            onChange={(e) => updateFormData('currentRole', e.target.value)}
             className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all duration-200"
             placeholder="e.g., Senior Frontend Developer"
           />
@@ -557,9 +581,7 @@ function ExperienceStep({ formData }: { formData: FormData }) {
           <input
             type="text"
             value={formData.company}
-            onChange={(e) => {
-              setFormData(prev => ({ ...prev, company: e.target.value }));
-            }}
+            onChange={(e) => updateFormData('company', e.target.value)}
             className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all duration-200"
             placeholder="Enter company name"
           />
@@ -569,7 +591,7 @@ function ExperienceStep({ formData }: { formData: FormData }) {
   );
 }
 
-function EducationStep({ formData }: { formData: FormData }) {
+function EducationStep({ formData, updateFormData }: { formData: FormData; updateFormData: (field: keyof FormData, value: any) => void }) {
   return (
     <div className="space-y-6">
       <div className="text-center mb-8">
@@ -588,16 +610,14 @@ function EducationStep({ formData }: { formData: FormData }) {
           </label>
           <select
             value={formData.educationLevel}
-            onChange={(e) => {
-              setFormData(prev => ({ ...prev, educationLevel: e.target.value }));
-            }}
+            onChange={(e) => updateFormData('educationLevel', e.target.value)}
             className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all duration-200"
           >
             <option value="">Select education level</option>
             <option value="high-school">High School</option>
-            <option value="associate">Associate&apos;s Degree</option>
-            <option value="bachelor">Bachelor&apos;s Degree</option>
-            <option value="master">Master&apos;s Degree</option>
+            <option value="associate">Associate's Degree</option>
+            <option value="bachelor">Bachelor's Degree</option>
+            <option value="master">Master's Degree</option>
             <option value="phd">PhD</option>
             <option value="self-taught">Self-Taught</option>
             <option value="bootcamp">Coding Bootcamp</option>
@@ -611,9 +631,7 @@ function EducationStep({ formData }: { formData: FormData }) {
           <input
             type="text"
             value={formData.institution}
-            onChange={(e) => {
-              setFormData(prev => ({ ...prev, institution: e.target.value }));
-            }}
+            onChange={(e) => updateFormData('institution', e.target.value)}
             className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all duration-200"
             placeholder="University, College, or Bootcamp name"
           />
@@ -626,9 +644,7 @@ function EducationStep({ formData }: { formData: FormData }) {
           <input
             type="text"
             value={formData.fieldOfStudy}
-            onChange={(e) => {
-              setFormData(prev => ({ ...prev, fieldOfStudy: e.target.value }));
-            }}
+            onChange={(e) => updateFormData('fieldOfStudy', e.target.value)}
             className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all duration-200"
             placeholder="e.g., Computer Science, Software Engineering"
           />
@@ -640,9 +656,7 @@ function EducationStep({ formData }: { formData: FormData }) {
           </label>
           <select
             value={formData.graduationYear}
-            onChange={(e) => {
-              setFormData(prev => ({ ...prev, graduationYear: e.target.value }));
-            }}
+            onChange={(e) => updateFormData('graduationYear', e.target.value)}
             className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all duration-200"
           >
             <option value="">Select year</option>
@@ -661,8 +675,12 @@ function EducationStep({ formData }: { formData: FormData }) {
   );
 }
 
-function InterestsStep({ formData }: { formData: FormData }) {
-  const renderInterestSection = (title: string, items: string[]) => (
+function InterestsStep({ formData, updateFormData, handleArrayToggle }: { 
+  formData: FormData; 
+  updateFormData: (field: keyof FormData, value: any) => void;
+  handleArrayToggle: (field: keyof FormData, value: string) => void;
+}) {
+  const renderInterestSection = (title: string, items: string[], field: keyof FormData) => (
     <div className="space-y-4">
       <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{title}</h3>
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -670,21 +688,9 @@ function InterestsStep({ formData }: { formData: FormData }) {
           <motion.button
             key={item}
             type="button"
-            onClick={() => {
-              if (formData.preferredJobRoles.includes(item)) {
-                setFormData(prev => ({
-                  ...prev,
-                  preferredJobRoles: prev.preferredJobRoles.filter(i => i !== item)
-                }));
-              } else {
-                setFormData(prev => ({
-                  ...prev,
-                  preferredJobRoles: [...prev.preferredJobRoles, item]
-                }));
-              }
-            }}
+            onClick={() => handleArrayToggle(field, item)}
             className={`p-3 rounded-lg border-2 transition-all duration-200 text-sm font-medium ${
-              formData.preferredJobRoles.includes(item)
+              (formData[field] as string[]).includes(item)
                 ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
                 : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:border-blue-300 dark:hover:border-blue-600'
             }`}
@@ -709,9 +715,9 @@ function InterestsStep({ formData }: { formData: FormData }) {
         </p>
       </div>
 
-      {renderInterestSection('Preferred Job Roles', jobRoles)}
-      {renderInterestSection('Coding Interests', codingInterests)}
-      {renderInterestSection('Preferred Technologies', programmingLanguages)}
+      {renderInterestSection('Preferred Job Roles', jobRoles, 'preferredJobRoles')}
+      {renderInterestSection('Coding Interests', codingInterests, 'codingInterests')}
+      {renderInterestSection('Preferred Technologies', programmingLanguages, 'preferredTechnologies')}
 
       <div className="space-y-4">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
@@ -719,9 +725,7 @@ function InterestsStep({ formData }: { formData: FormData }) {
         </h3>
         <textarea
           value={formData.careerGoals}
-          onChange={(e) => {
-            setFormData(prev => ({ ...prev, careerGoals: e.target.value }));
-          }}
+          onChange={(e) => updateFormData('careerGoals', e.target.value)}
           rows={4}
           className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all duration-200 resize-none"
           placeholder="Tell us about your career goals and what you hope to achieve..."

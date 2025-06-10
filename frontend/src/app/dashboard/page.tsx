@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useTheme } from 'next-themes';
 import Footer from '../../components/Footer';
 
 // Mock user data - in real app this would come from API/context
@@ -40,6 +41,8 @@ const personalizedContent = {
 
 export default function DashboardPage() {
   const [mounted, setMounted] = useState(false);
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark';
 
   useEffect(() => {
     setMounted(true);
@@ -60,7 +63,7 @@ export default function DashboardPage() {
             Welcome back, {mockUserData.firstName}! 👋
           </h1>
           <p className="text-lg text-gray-600 dark:text-gray-300">
-            Here&apos;s your personalized learning dashboard
+            Here's your personalized learning dashboard
           </p>
         </motion.div>
 

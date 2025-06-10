@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import { useTheme } from "next-themes";
 import { useAuth } from "../contexts/AuthContext";
 import { useRouter } from "next/navigation";
 
@@ -34,6 +35,9 @@ export default function Navbar() {
     setShow(true);
     setMounted(true);
   }, []);
+
+  const { theme, setTheme, resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
 
   const handleLogout = () => {
     logout();
@@ -164,18 +168,22 @@ export default function Navbar() {
           {/* Theme Toggle */}
           <button
             aria-label="Toggle Theme"
-            onClick={() => {}}
+            onClick={() => setTheme(isDark ? "light" : "dark")}
             className="p-2 rounded-full hover:bg-blue-100 dark:hover:bg-gray-800 transition-colors duration-200 focus:outline-none"
           >
             <motion.span
-              key="sun"
+              key={isDark ? "moon" : "sun"}
               initial={{ rotate: -90, scale: 0.7, opacity: 0 }}
               animate={{ rotate: 0, scale: 1, opacity: 1 }}
               exit={{ rotate: 90, scale: 0.7, opacity: 0 }}
               transition={{ type: "spring", stiffness: 300 }}
               className="inline-block"
             >
-              <svg width="22" height="22" fill="currentColor" className="text-blue-600" viewBox="0 0 24 24"><path d="M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12Zm0 2.5a.75.75 0 0 1 .75.75v1a.75.75 0 0 1-1.5 0v-1A.75.75 0 0 1 12 20.5Zm0-17a.75.75 0 0 1 .75.75v1a.75.75 0 0 1-1.5 0v-1A.75.75 0 0 1 12 3.5Zm8.5 8.5a.75.75 0 0 1 .75.75v.01a.75.75 0 0 1-1.5 0v-.01a.75.75 0 0 1 .75-.75Zm-17 0a.75.75 0 0 1 .75.75v.01a.75.75 0 0 1-1.5 0v-.01A.75.75 0 0 1 3.5 12Zm14.45 5.03a.75.75 0 0 1 1.06 1.06l-.71.71a.75.75 0 1 1-1.06-1.06l.71-.71Zm-12.02 0a.75.75 0 0 1 1.06 1.06l-.71.71a.75.75 0 1 1-1.06-1.06l.71-.71Zm-12.02 0a.75.75 0 0 1 1.06 0l.71.71a.75.75 0 1 1-1.06 1.06l-.71-.71a.75.75 0 0 1 0-1.06Zm12.02-10.06a.75.75 0 0 1 1.06 1.06l-.71.71a.75.75 0 1 1-1.06-1.06l.71-.71Zm-12.02 0a.75.75 0 0 1 1.06 0l.71.71a.75.75 0 1 1-1.06 1.06l-.71-.71a.75.75 0 0 1 0-1.06Z"/></svg>
+              {isDark ? (
+                <svg width="22" height="22" fill="currentColor" className="text-yellow-400" viewBox="0 0 24 24"><path d="M21.75 15.5A9.75 9.75 0 0 1 8.5 2.25a.75.75 0 0 0-.75.75v.25A9.25 9.25 0 1 0 20.75 16.25h.25a.75.75 0 0 0 .75-.75Z"/></svg>
+              ) : (
+                <svg width="22" height="22" fill="currentColor" className="text-blue-600" viewBox="0 0 24 24"><path d="M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12Zm0 2.5a.75.75 0 0 1 .75.75v1a.75.75 0 0 1-1.5 0v-1A.75.75 0 0 1 12 20.5Zm0-17a.75.75 0 0 1 .75.75v1a.75.75 0 0 1-1.5 0v-1A.75.75 0 0 1 12 3.5Zm8.5 8.5a.75.75 0 0 1 .75.75v.01a.75.75 0 0 1-1.5 0v-.01a.75.75 0 0 1 .75-.75Zm-17 0a.75.75 0 0 1 .75.75v.01a.75.75 0 0 1-1.5 0v-.01A.75.75 0 0 1 3.5 12Zm14.45 5.03a.75.75 0 0 1 1.06 1.06l-.71.71a.75.75 0 1 1-1.06-1.06l.71-.71Zm-12.02 0a.75.75 0 0 1 1.06 1.06l-.71.71a.75.75 0 1 1-1.06-1.06l.71-.71Zm-12.02 0a.75.75 0 0 1 1.06 0l.71.71a.75.75 0 1 1-1.06 1.06l-.71-.71a.75.75 0 0 1 0-1.06Zm12.02-10.06a.75.75 0 0 1 1.06 1.06l-.71.71a.75.75 0 1 1-1.06-1.06l.71-.71Zm-12.02 0a.75.75 0 0 1 1.06 0l.71.71a.75.75 0 1 1-1.06 1.06l-.71-.71a.75.75 0 0 1 0-1.06Z"/></svg>
+              )}
             </motion.span>
           </button>
 

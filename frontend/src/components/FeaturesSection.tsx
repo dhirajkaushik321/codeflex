@@ -79,7 +79,7 @@ export default function FeaturesSection() {
           initial="hidden"
           animate={show ? "show" : "hidden"}
         >
-          {features.map((feature) => (
+          {features.map((feature, idx) => (
             <motion.div
               key={feature.title}
               className="bg-blue-50 dark:bg-gray-800 border border-blue-100 dark:border-gray-700 rounded-2xl p-6 flex flex-col items-start shadow-sm hover:shadow-xl transition-shadow duration-300 group cursor-pointer"
