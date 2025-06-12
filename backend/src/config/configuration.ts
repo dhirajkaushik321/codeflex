@@ -26,6 +26,11 @@ export default () => ({
     s3BucketName: process.env.AWS_S3_BUCKET_NAME || 'codeveer-profile-pictures',
   },
   
+  // Google Gemini AI
+  gemini: {
+    apiKey: process.env.GEMINI_API_KEY || 'AIzaSyBi4kHZmZ7oxNkkLqwIoDyvVO3PtFK7blk',
+  },
+  
   // App
   app: {
     name: 'codeVeer API',

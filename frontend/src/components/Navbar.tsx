@@ -191,13 +191,18 @@ export default function Navbar() {
           {isAuthenticated ? (
             <div className="flex items-center gap-3">
               {/* User Menu */}
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
                 <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white text-sm font-semibold">
                   {user?.firstName?.charAt(0) || 'U'}
                 </div>
-                <span className="hidden sm:block text-sm font-medium text-gray-700 dark:text-gray-200">
-                  {user?.firstName}
-                </span>
+                <div>
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
+                    {user?.firstName}
+                  </span>
+                  <div className="text-xs text-gray-500 dark:text-gray-400 capitalize">
+                    {user?.role || 'User'}
+                  </div>
+                </div>
               </div>
               
               {/* Dashboard Link */}
@@ -277,9 +282,14 @@ export default function Navbar() {
                   <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white text-sm font-semibold">
                     {user?.firstName?.charAt(0) || 'U'}
                   </div>
-                  <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
-                    {user?.firstName}
-                  </span>
+                  <div>
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
+                      {user?.firstName}
+                    </span>
+                    <div className="text-xs text-gray-500 dark:text-gray-400 capitalize">
+                      {user?.role || 'User'}
+                    </div>
+                  </div>
                 </div>
                 <Link
                   href="/dashboard"

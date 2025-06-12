@@ -1,4 +1,4 @@
-import { IsEmail, IsString, IsOptional, IsArray, MinLength, IsBoolean, IsDateString } from 'class-validator';
+import { IsEmail, IsString, IsOptional, IsArray, MinLength, IsBoolean, IsDateString, IsIn } from 'class-validator';
 
 // Experience interface
 export interface Experience {
@@ -39,6 +39,11 @@ export class CreateDeveloperDto {
   @IsString()
   @MinLength(6)
   password: string;
+
+  @IsOptional()
+  @IsString()
+  @IsIn(['developer', 'creator', 'admin'])
+  role?: string;
 
   @IsOptional()
   @IsString()

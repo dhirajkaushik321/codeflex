@@ -15,7 +15,7 @@ export class AuthService {
   ) {}
 
   async signup(createDeveloperDto: CreateDeveloperDto) {
-    const { email, password, ...rest } = createDeveloperDto;
+    const { email, password, role, ...rest } = createDeveloperDto;
     const existing = await this.developerModel.findOne({ email });
     if (existing) {
       throw new ConflictException('Email already registered');
@@ -25,7 +25,7 @@ export class AuthService {
       ...rest,
       email,
       password: hashedPassword,
-      role: 'developer',
+      role: role || 'developer',
       isProfileComplete: false,
     });
     await developer.save();

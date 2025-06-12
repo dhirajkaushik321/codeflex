@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Import Quill styles */
+@import 'quill/dist/quill.snow.css';
+
 @layer base {
   :root {
     --font-sans: var(--font-geist-sans);
@@ -9,6 +12,76 @@
   }
 }
 
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
+  }
+}
+
 body {
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(
+      to bottom,
+      transparent,
+      rgb(var(--background-end-rgb))
+    )
+    rgb(var(--background-start-rgb));
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Quill editor dark mode support */
+.dark .ql-toolbar {
+  background-color: #374151;
+  border-color: #4b5563;
+}
+
+.dark .ql-container {
+  background-color: #1f2937;
+  border-color: #4b5563;
+  color: #f9fafb;
+}
+
+.dark .ql-editor {
+  color: #f9fafb;
+}
+
+.dark .ql-stroke {
+  stroke: #9ca3af;
+}
+
+.dark .ql-fill {
+  fill: #9ca3af;
+}
+
+.dark .ql-picker {
+  color: #9ca3af;
+}
+
+.dark .ql-picker-options {
+  background-color: #374151;
+  border-color: #4b5563;
+}
+
+.dark .ql-picker-item:hover {
+  background-color: #4b5563;
+}
+
+.dark .ql-picker-label {
+  color: #9ca3af;
+}
+
+.dark .ql-picker-label:hover {
+  color: #f9fafb;
+}
+
+.dark .ql-picker-label.ql-active {
+  color: #3b82f6;
 }

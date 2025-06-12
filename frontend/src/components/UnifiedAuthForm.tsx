@@ -110,6 +110,7 @@ export default function UnifiedAuthForm() {
           lastName: formData.lastName,
           email: formData.email,
           password: formData.password,
+          role: formData.role,
         };
 
         const response = await apiService.signup(signupData);
