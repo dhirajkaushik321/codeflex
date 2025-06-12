@@ -6,6 +6,7 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { DeveloperModule } from './developer/developer.module';
 import configuration from './config/configuration';
+import { CourseModule } from './course/course.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import configuration from './config/configuration';
     }),
     AuthModule,
     DeveloperModule,
+    CourseModule,
   ],
   controllers: [AppController],
   providers: [AppService],
