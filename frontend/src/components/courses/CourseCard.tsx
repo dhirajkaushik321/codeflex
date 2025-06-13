@@ -63,8 +63,8 @@ export default function CourseCard({
     if (onEdit) {
       onEdit(course);
     } else {
-      // Default behavior: navigate to edit page
-      router.push(`/dashboard/creator/courses/${course.id}/edit`);
+      // Default behavior: navigate to unified course editor
+      router.push(`/dashboard/creator/courses/${course.id}`);
     }
   };
 

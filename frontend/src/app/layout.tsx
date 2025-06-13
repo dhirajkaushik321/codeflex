@@ -5,6 +5,7 @@ import { ThemeProvider } from "../components/ThemeProvider";
 import { AuthProvider } from "../contexts/AuthContext";
 import Navbar from "../components/Navbar";
 import Chatbot from "../components/Chatbot";
+import ToastProvider from '@/contexts/ToastContext';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,9 +32,11 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <AuthProvider>
-            <Navbar />
-            {children}
-            <Chatbot />
+            <ToastProvider>
+              <Navbar />
+              {children}
+              <Chatbot />
+            </ToastProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>

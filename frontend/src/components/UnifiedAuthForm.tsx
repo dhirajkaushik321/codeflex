@@ -126,7 +126,7 @@ export default function UnifiedAuthForm() {
         
         // Redirect to profile completion after celebration
         setTimeout(() => {
-          if (!response.user.isProfileComplete) {
+          if (!response.user?.isProfileComplete) {
             router.push(`/signup?fromAuth=true&userName=${encodeURIComponent(formData.firstName)}&userRole=${encodeURIComponent(formData.role)}`);
           } else {
             router.push('/dashboard');
@@ -149,7 +149,7 @@ export default function UnifiedAuthForm() {
         
         // Redirect based on profile completion
         setTimeout(() => {
-          if (response.user.isProfileComplete) {
+          if (response.user?.isProfileComplete) {
             router.push('/dashboard');
           } else {
             router.push('/signup');

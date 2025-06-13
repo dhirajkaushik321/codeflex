@@ -3,6 +3,10 @@ export interface Page {
   title: string;
   content: string;
   order: number;
+  difficulty?: 'beginner' | 'intermediate' | 'advanced';
+  estimatedTime?: number; // in minutes
+  points?: number;
+  tags?: string[];
 }
 
 export interface Course {
@@ -23,6 +27,10 @@ export interface Course {
   rating: number;
   totalLessons: number;
   totalDuration: number;
+  // New properties for enhanced course structure
+  quizzes?: Quiz[];
+  codingExercises?: CodingExercise[];
+  codingPlaygrounds?: CodingPlayground[];
 }
 
 export interface Module {
@@ -32,6 +40,14 @@ export interface Module {
   order: number;
   lessons: Lesson[];
   duration: number;
+  difficulty?: 'beginner' | 'intermediate' | 'advanced';
+  estimatedTime?: number; // in minutes
+  points?: number;
+  tags?: string[];
+  // New properties for enhanced module structure
+  quizzes?: Quiz[];
+  codingExercises?: CodingExercise[];
+  codingPlaygrounds?: CodingPlayground[];
 }
 
 export interface Lesson {
@@ -46,6 +62,77 @@ export interface Lesson {
   status: 'draft' | 'published';
   exercises?: Exercise[];
   mcqs?: MCQ[];
+  difficulty?: 'beginner' | 'intermediate' | 'advanced';
+  estimatedTime?: number; // in minutes
+  points?: number;
+  tags?: string[];
+  // New properties for enhanced lesson structure
+  quizzes?: Quiz[];
+  codingExercises?: CodingExercise[];
+  codingPlaygrounds?: CodingPlayground[];
+}
+
+// New interfaces for enhanced course structure
+export interface Quiz {
+  id: string;
+  title: string;
+  description: string;
+  type: 'multiple-choice' | 'true-false' | 'fill-blank' | 'matching' | 'essay';
+  questions: QuizQuestion[];
+  timeLimit?: number; // in minutes
+  passingScore: number; // percentage
+  maxAttempts?: number;
+  points: number;
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
+  tags: string[];
+  order: number;
+  status: 'draft' | 'published';
+  estimatedTime?: number; // in minutes
+}
+
+export interface QuizQuestion {
+  id: string;
+  question: string;
+  type: 'multiple-choice' | 'true-false' | 'fill-blank' | 'matching' | 'essay';
+  options?: string[];
+  correctAnswer?: string | number | string[];
+  explanation?: string;
+  points: number;
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
+}
+
+export interface CodingExercise {
+  id: string;
+  title: string;
+  description: string;
+  problemStatement: string;
+  initialCode?: string;
+  solution?: string;
+  testCases: TestCase[];
+  programmingLanguage: string;
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
+  points: number;
+  timeLimit?: number; // in minutes
+  hints?: string[];
+  tags: string[];
+  order: number;
+  status: 'draft' | 'published';
+  estimatedTime?: number; // in minutes
+}
+
+export interface CodingPlayground {
+  id: string;
+  title: string;
+  description: string;
+  initialCode: string;
+  programmingLanguage: string;
+  features: ('console' | 'file-system' | 'debugger' | 'collaboration')[];
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
+  points?: number;
+  tags: string[];
+  order: number;
+  status: 'draft' | 'published';
+  estimatedTime?: number; // in minutes
 }
 
 export interface Exercise {

@@ -23,7 +23,7 @@ export default function LoginForm() {
       apiService.setAuthToken(response.access_token);
       
       // Redirect based on profile completion
-      if (response.user.isProfileComplete) {
+      if (response.user?.isProfileComplete) {
         router.push('/dashboard');
       } else {
         router.push('/signup');

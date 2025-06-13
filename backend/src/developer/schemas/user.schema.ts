@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
-export type DeveloperDocument = Developer & Document;
+export type UserDocument = User & Document;
 
 // Experience interface
 export interface Experience {
@@ -30,7 +30,7 @@ export interface Education {
 }
 
 @Schema({ timestamps: true })
-export class Developer {
+export class User {
   @Prop({ required: true })
   firstName: string;
 
@@ -122,8 +122,8 @@ export class Developer {
   @Prop({ default: false })
   isProfileComplete: boolean;
 
-  @Prop({ default: 'developer' })
+  @Prop({ default: 'learner' })
   role: string;
 }
 
-export const DeveloperSchema = SchemaFactory.createForClass(Developer); 
+export const UserSchema = SchemaFactory.createForClass(User); 

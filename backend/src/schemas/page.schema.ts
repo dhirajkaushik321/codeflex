@@ -12,7 +12,7 @@ export class Page {
   @Prop({ required: true })
   order: number;
 
-  @Prop({ required: true })
+  @Prop({ default: '' })
   content: string; // HTML from Quill
 }
 

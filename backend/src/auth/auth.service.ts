@@ -1,74 +1,103 @@
-import { Injectable, ConflictException, UnauthorizedException } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Injectable, ConflictException, UnauthorizedException, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
-import { Developer, DeveloperDocument } from '../developer/schemas/developer.schema';
-import { CreateDeveloperDto } from '../developer/dto/create-developer.dto';
+import { CreateUserDto } from '../developer/dto/create-user.dto';
 import { LoginDto } from './dto/login.dto';
+import { UserService } from '../developer/user.service';
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
-    @InjectModel(Developer.name) private developerModel: Model<DeveloperDocument>,
-    private jwtService: JwtService,
+    private readonly jwtService: JwtService,
+    private readonly userService: UserService,
   ) {}
 
-  async signup(createDeveloperDto: CreateDeveloperDto) {
-    const { email, password, role, ...rest } = createDeveloperDto;
-    const existing = await this.developerModel.findOne({ email });
+  async signup(createUserDto: CreateUserDto) {
+    const { email, password, role, ...rest } = createUserDto;
+    const existing = await this.userService.findByEmail(email);
     if (existing) {
-      throw new ConflictException('Email already registered');
+      throw new ConflictException('User already exists');
     }
+
     const hashedPassword = await bcrypt.hash(password, 10);
-    const developer = new this.developerModel({
+    const userData = {
       ...rest,
       email,
       password: hashedPassword,
-      role: role || 'developer',
-      isProfileComplete: false,
-    });
-    await developer.save();
-    return this.generateJwt(developer);
-  }
+      role: role || 'learner',
+    };
 
-  async validateDeveloper(email: string, password: string): Promise<Developer | null> {
-    const developer = await this.developerModel.findOne({ email });
-    if (!developer) return null;
-    const isMatch = await bcrypt.compare(password, developer.password);
-    if (!isMatch) return null;
-    return developer;
+    const user = await this.userService.create(userData);
+    const { password: _, ...userResult } = user.toObject();
+    
+    const payload = { email: user.email, sub: user._id, role: user.role };
+    return {
+      access_token: this.jwtService.sign(payload),
+      user: {
+        id: user._id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: user.role,
+        isProfileComplete: user.isProfileComplete || false,
+      },
+    };
   }
 
   async login(loginDto: LoginDto) {
     const { email, password } = loginDto;
-    const developer = await this.developerModel.findOne({ email });
-    if (!developer) {
+    const user = await this.userService.findByEmail(email);
+    
+    if (!user || !(await bcrypt.compare(password, user.password))) {
       throw new UnauthorizedException('Invalid credentials');
     }
-    const isMatch = await bcrypt.compare(password, developer.password);
-    if (!isMatch) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
-    return this.generateJwt(developer);
-  }
 
-  private generateJwt(developer: DeveloperDocument) {
-    const payload = {
-      sub: developer._id,
-      email: developer.email,
-      role: developer.role,
-    };
+    const payload = { email: user.email, sub: user._id, role: user.role };
     return {
       access_token: this.jwtService.sign(payload),
       user: {
-        id: developer._id,
-        email: developer.email,
-        firstName: developer.firstName,
-        lastName: developer.lastName,
-        role: developer.role,
-        isProfileComplete: developer.isProfileComplete,
+        id: user._id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: user.role,
+        isProfileComplete: user.isProfileComplete || false,
       },
     };
+  }
+
+  async validateUser(email: string, password: string): Promise<any> {
+    this.logger.log(`Validating user with email: ${email}`);
+    
+    const user = await this.userService.findByEmail(email);
+    if (user && await bcrypt.compare(password, user.password)) {
+      const { password, ...result } = user.toObject();
+      return result;
+    }
+    return null;
+  }
+
+  async register(createUserDto: CreateUserDto) {
+    this.logger.log(`Registering new user with email: ${createUserDto.email}`);
+    
+    const existingUser = await this.userService.findByEmail(createUserDto.email);
+    if (existingUser) {
+      throw new UnauthorizedException('User already exists');
+    }
+
+    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+    const userData = {
+      ...createUserDto,
+      password: hashedPassword,
+      role: createUserDto.role || 'learner',
+    };
+
+    const newUser = await this.userService.create(userData);
+    const { password, ...result } = newUser.toObject();
+    
+    this.logger.log(`Successfully registered user: ${newUser.email}`);
+    return result;
   }
 }

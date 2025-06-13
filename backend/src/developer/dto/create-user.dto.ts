@@ -1,4 +1,5 @@
-import { IsEmail, IsString, IsOptional, IsArray, MinLength, IsBoolean, IsDateString, IsIn } from 'class-validator';
+import { IsEmail, IsString, IsOptional, IsArray, MinLength, IsBoolean, IsDateString, IsIn, IsEnum } from 'class-validator';
+import { Type } from 'class-transformer';
 
 // Experience interface
 export interface Experience {
@@ -26,7 +27,7 @@ export interface Education {
   description?: string;
 }
 
-export class CreateDeveloperDto {
+export class CreateUserDto {
   @IsString()
   firstName: string;
 
@@ -44,32 +45,6 @@ export class CreateDeveloperDto {
   @IsString()
   @IsIn(['developer', 'creator', 'admin'])
   role?: string;
-
-  @IsOptional()
-  @IsString()
-  phone?: string;
-
-  @IsOptional()
-  @IsString()
-  location?: string;
-
-  @IsOptional()
-  @IsString()
-  linkedinUrl?: string;
-
-  @IsOptional()
-  @IsString()
-  githubUrl?: string;
-}
-
-export class UpdateDeveloperProfileDto {
-  @IsOptional()
-  @IsString()
-  firstName?: string;
-
-  @IsOptional()
-  @IsString()
-  lastName?: string;
 
   @IsOptional()
   @IsString()
@@ -132,6 +107,7 @@ export class UpdateDeveloperProfileDto {
   // New multiple experiences support
   @IsOptional()
   @IsArray()
+  @Type(() => Object)
   experiences?: Experience[];
 
   // Legacy single education fields
@@ -154,6 +130,7 @@ export class UpdateDeveloperProfileDto {
   // New multiple education support
   @IsOptional()
   @IsArray()
+  @Type(() => Object)
   education?: Education[];
 
   @IsOptional()
@@ -174,4 +151,128 @@ export class UpdateDeveloperProfileDto {
   @IsOptional()
   @IsString()
   careerGoals?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  isProfileComplete?: boolean;
+}
+
+export class UpdateUserProfileDto {
+  @IsOptional()
+  @IsString()
+  firstName?: string;
+
+  @IsOptional()
+  @IsString()
+  lastName?: string;
+
+  @IsOptional()
+  @IsString()
+  phone?: string;
+
+  @IsOptional()
+  @IsString()
+  location?: string;
+
+  @IsOptional()
+  @IsString()
+  linkedinUrl?: string;
+
+  @IsOptional()
+  @IsString()
+  githubUrl?: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  programmingLanguages?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  frameworks?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  databases?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  tools?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  softSkills?: string[];
+
+  @IsOptional()
+  @IsString()
+  experienceLevel?: string;
+
+  @IsOptional()
+  @IsString()
+  yearsOfExperience?: string;
+
+  @IsOptional()
+  @IsString()
+  currentRole?: string;
+
+  @IsOptional()
+  @IsString()
+  company?: string;
+
+  @IsOptional()
+  @IsArray()
+  @Type(() => Object)
+  experiences?: Experience[];
+
+  @IsOptional()
+  @IsString()
+  educationLevel?: string;
+
+  @IsOptional()
+  @IsString()
+  institution?: string;
+
+  @IsOptional()
+  @IsString()
+  fieldOfStudy?: string;
+
+  @IsOptional()
+  @IsString()
+  graduationYear?: string;
+
+  @IsOptional()
+  @IsArray()
+  @Type(() => Object)
+  education?: Education[];
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  preferredJobRoles?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  codingInterests?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  preferredTechnologies?: string[];
+
+  @IsOptional()
+  @IsString()
+  careerGoals?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  isProfileComplete?: boolean;
+
+  @IsOptional()
+  @IsEnum(['learner', 'creator', 'admin'])
+  role?: string;
 } 
