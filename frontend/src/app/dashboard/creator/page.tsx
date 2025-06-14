@@ -76,7 +76,7 @@ export default function CreatorDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 pt-20">
+    <div className="min-h-screen bg-gradient-to-br from-[#f8fafc] via-[#e6f6f2] to-[#e0e7ff] dark:from-[#18181b] dark:via-[#23243a] dark:to-[#1a1f2b] pt-20">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}

@@ -29,7 +29,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased relative min-h-screen`}>
+        {/* Gradient Background Layer */}
+        <div className="fixed inset-0 -z-10 w-full h-full bg-gradient-to-br from-[#f8fafc] via-[#e6f6f2] to-[#e0e7ff] dark:from-[#18181b] dark:via-[#23243a] dark:to-[#1a1f2b] transition-colors duration-500"></div>
+        {/* Kinetic Accent Layer */}
+        <div className="pointer-events-none fixed inset-0 -z-10">
+          <div className="absolute right-[-10vw] top-[-10vw] w-[40vw] h-[40vw] bg-[radial-gradient(ellipse_at_top_right,_#7ef9c0_0%,_transparent_70%)] opacity-30 blur-3xl"></div>
+          <div className="absolute left-[-10vw] bottom-[-10vw] w-[32vw] h-[32vw] bg-[radial-gradient(ellipse_at_bottom_left,_#a259f7_0%,_transparent_70%)] opacity-20 blur-2xl"></div>
+        </div>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <AuthProvider>
             <ToastProvider>

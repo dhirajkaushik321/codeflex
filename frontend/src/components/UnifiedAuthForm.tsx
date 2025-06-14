@@ -181,7 +181,7 @@ export default function UnifiedAuthForm() {
 
   return (
     <>
-      <div className={`min-h-screen bg-gradient-to-br ${config.bgColor} flex items-center justify-center p-4`}>
+      <div className={`min-h-screen bg-gradient-to-br from-[#f8fafc] via-[#e6f6f2] to-[#e0e7ff] dark:from-[#18181b] dark:via-[#23243a] dark:to-[#1a1f2b] flex items-center justify-center p-4`}>
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -209,7 +209,7 @@ export default function UnifiedAuthForm() {
               {mode === 'login' ? 'Sign in to your account' : 'Create your account'}
             </p>
             <div className="mt-2">
-              <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold bg-gradient-to-r ${config.color} text-white`}>
+              <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold bg-gradient-to-r from-[#7ef9c0] to-[#a259f7] text-white`}>
                 {config.title}
               </span>
             </div>
@@ -220,7 +220,7 @@ export default function UnifiedAuthForm() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 border border-gray-200 dark:border-gray-700 mb-6"
+            className="bg-white dark:bg-[#23243a] rounded-2xl shadow-xl p-8 border border-gray-200 dark:border-[#23243a] mb-6"
           >
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 text-center">
               Select Your Role
@@ -235,7 +235,7 @@ export default function UnifiedAuthForm() {
                   }}
                   className={`p-4 rounded-lg border-2 transition-all duration-200 text-center ${
                     selectedRole === role
-                      ? `border-blue-500 bg-blue-50 dark:bg-blue-900/20`
+                      ? `border-blue-500 bg-blue-50 dark:bg-[#23243a]`
                       : 'border-gray-200 dark:border-gray-600 hover:border-blue-300 dark:hover:border-blue-600'
                   }`}
                   whileHover={{ scale: 1.02 }}
@@ -255,7 +255,7 @@ export default function UnifiedAuthForm() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
-            className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 border border-gray-200 dark:border-gray-700"
+            className="bg-white dark:bg-[#23243a] rounded-2xl shadow-xl p-8 border border-gray-200 dark:border-gray-700"
           >
             <form onSubmit={handleSubmit} className="space-y-6">
               {mode === 'signup' && (
@@ -272,7 +272,7 @@ export default function UnifiedAuthForm() {
                       type="text"
                       value={formData.firstName}
                       onChange={(e) => handleInputChange('firstName', e.target.value)}
-                      className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-[#23243a] text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                       placeholder="John"
                       required={mode === 'signup'}
                     />
@@ -290,7 +290,7 @@ export default function UnifiedAuthForm() {
                       type="text"
                       value={formData.lastName}
                       onChange={(e) => handleInputChange('lastName', e.target.value)}
-                      className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                      className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-[#23243a] text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                       placeholder="Doe"
                       required={mode === 'signup'}
                     />
@@ -310,7 +310,7 @@ export default function UnifiedAuthForm() {
                   type="email"
                   value={formData.email}
                   onChange={(e) => handleInputChange('email', e.target.value)}
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-[#23243a] text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                   placeholder="john@example.com"
                   required
                 />
@@ -328,7 +328,7 @@ export default function UnifiedAuthForm() {
                   type="password"
                   value={formData.password}
                   onChange={(e) => handleInputChange('password', e.target.value)}
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-[#23243a] text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                   placeholder="••••••••"
                   required
                 />
@@ -347,7 +347,7 @@ export default function UnifiedAuthForm() {
                     type="password"
                     value={formData.confirmPassword}
                     onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
-                    className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                    className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-[#23243a] text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                     placeholder="••••••••"
                     required={mode === 'signup'}
                   />

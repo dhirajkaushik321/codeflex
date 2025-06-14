@@ -7,7 +7,7 @@ const testimonials = [
   {
     name: "Sarah Chen",
     role: "Software Engineer at Google",
-    text: "codeVeer helped me ace my technical interviews. The AI mock interviews are incredibly realistic and the coding challenges are top-notch.",
+    text: "CodeFlex helped me ace my technical interviews. The AI mock interviews are incredibly realistic and the coding challenges are top-notch.",
     stars: 5,
     avatar: "/avatar1.jpeg",
   },
@@ -21,7 +21,7 @@ const testimonials = [
   {
     name: "Emily Watson",
     role: "Full Stack Developer at Amazon",
-    text: "Gamified learning made interview prep fun instead of stressful. I landed my dream job thanks to codeVeer's comprehensive approach.",
+    text: "Gamified learning made interview prep fun instead of stressful. I landed my dream job thanks to CodeFlex's comprehensive approach.",
     stars: 5,
     avatar: "/avatar1.jpeg",
   },
@@ -47,7 +47,7 @@ export default function TestimonialsSection() {
   }, []);
 
   return (
-    <section id="testimonials" className="w-full py-16 md:py-24 bg-gray-50 dark:bg-gray-800">
+    <section id="testimonials" className="w-full py-16 md:py-24 bg-gradient-to-br from-[#f8fafc] via-[#e6f6f2] to-[#e0e7ff] dark:from-[#18181b] dark:via-[#23243a] dark:to-[#1a1f2b]">
       <div className="max-w-7xl mx-auto px-4 sm:px-8 flex flex-col items-center">
         <motion.h2
           className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-3 text-center"
@@ -74,7 +74,7 @@ export default function TestimonialsSection() {
           {testimonials.map((t, idx) => (
             <motion.div
               key={t.name}
-              className="bg-white dark:bg-gray-900 border border-blue-100 dark:border-gray-700 rounded-2xl p-6 flex flex-col items-start shadow-md hover:shadow-2xl transition-shadow duration-300 cursor-pointer"
+              className="bg-white dark:bg-[#23243a] border border-blue-100 dark:border-[#23243a] rounded-2xl p-6 flex flex-col items-start shadow-md hover:shadow-2xl transition-shadow duration-300 cursor-pointer"
               variants={card}
               whileHover={{ scale: 1.04, boxShadow: "0 8px 32px #2563eb22" }}
             >
@@ -83,7 +83,7 @@ export default function TestimonialsSection() {
                 <Image
                   src={t.avatar}
                   alt={t.name}
-                  className="w-12 h-12 rounded-full object-cover border border-gray-200 dark:border-gray-600 bg-gray-100 dark:bg-gray-700"
+                  className="w-12 h-12 rounded-full object-cover border border-gray-200 dark:border-[#23243a] bg-gray-100 dark:bg-[#23243a]"
                   width={48}
                   height={48}/>
               

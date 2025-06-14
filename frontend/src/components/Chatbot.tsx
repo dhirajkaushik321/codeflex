@@ -25,7 +25,7 @@ const Chatbot = () => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: "Hello! 👋 I'm your AI assistant. How can I help you with CodeVeer today?",
+      text: "Hello! 👋 I'm your AI assistant. How can I help you with CodeFlex today?",
       sender: 'bot',
       timestamp: new Date(),
       type: 'quick-actions'
@@ -37,7 +37,7 @@ const Chatbot = () => {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const quickActions: QuickAction[] = [
-    { id: '1', text: 'What is CodeVeer?', action: 'explain_codeveer' },
+    { id: '1', text: 'What is CodeFlex?', action: 'explain_codeflex' },
     { id: '2', text: 'How to get started?', action: 'getting_started' },
     { id: '3', text: 'Features & Pricing', action: 'features_pricing' },
     { id: '4', text: 'Contact Support', action: 'contact_support' }
@@ -61,8 +61,8 @@ const Chatbot = () => {
     const message = userMessage.toLowerCase();
     
     // Context-aware responses
-    if (action === 'explain_codeveer' || message.includes('what is') || message.includes('tell me about')) {
-      return "CodeVeer is an innovative interview preparation platform that connects developers, creators, and companies. We offer AI-powered mock interviews, real-time coding challenges, and personalized learning paths to help you ace your technical interviews and advance your career! 🚀";
+    if (action === 'explain_codeflex' || message.includes('what is') || message.includes('tell me about')) {
+      return "CodeFlex is an innovative interview preparation platform that connects developers, creators, and companies. We offer AI-powered mock interviews, real-time coding challenges, and personalized learning paths to help you ace your technical interviews and advance your career! 🚀";
     }
     
     if (action === 'getting_started' || message.includes('start') || message.includes('begin') || message.includes('sign up')) {
@@ -70,11 +70,11 @@ const Chatbot = () => {
     }
     
     if (action === 'features_pricing' || message.includes('features') || message.includes('pricing') || message.includes('cost')) {
-      return "CodeVeer offers amazing features! ✨\n\n• AI-powered mock interviews\n• Real-time coding challenges\n• Personalized learning paths\n• Progress tracking\n• Community support\n• Multiple difficulty levels\n\nWe have flexible pricing plans starting from free tier. Check out our pricing page for detailed information!";
+      return "CodeFlex offers amazing features! ✨\n\n• AI-powered mock interviews\n• Real-time coding challenges\n• Personalized learning paths\n• Progress tracking\n• Community support\n• Multiple difficulty levels\n\nWe have flexible pricing plans starting from free tier. Check out our pricing page for detailed information!";
     }
     
     if (action === 'contact_support' || message.includes('support') || message.includes('help') || message.includes('contact')) {
-      return "I'm here to help! 💬\n\nFor technical support:\n• Email: support@codeveer.com\n• Live chat: Available 24/7\n• Documentation: docs.codeveer.com\n\nFor general inquiries:\n• Email: hello@codeveer.com\n• Phone: +1 (555) 123-4567\n\nIs there something specific I can help you with?";
+      return "I'm here to help! 💬\n\nFor technical support:\n• Email: support@codeflex.com\n• Live chat: Available 24/7\n• Documentation: docs.codeflex.com\n\nFor general inquiries:\n• Email: hello@codeflex.com\n• Phone: +1 (555) 123-4567\n\nIs there something specific I can help you with?";
     }
     
     if (message.includes('interview') || message.includes('practice')) {
@@ -82,7 +82,7 @@ const Chatbot = () => {
     }
     
     if (message.includes('thank') || message.includes('thanks')) {
-      return "You're welcome! 😊 I'm here to help you succeed with CodeVeer. Feel free to ask me anything anytime!";
+      return "You're welcome! 😊 I'm here to help you succeed with CodeFlex. Feel free to ask me anything anytime!";
     }
     
     if (message.includes('bye') || message.includes('goodbye')) {
@@ -95,7 +95,7 @@ const Chatbot = () => {
       "I understand what you're looking for. Here's what I can tell you...",
       "Based on your query, I'd recommend checking out our features section.",
       "I'm here to help! Could you provide more details about that?",
-      "That's an interesting point. Let me explain how CodeVeer handles this...",
+      "That's an interesting point. Let me explain how CodeFlex handles this...",
       "I'd be happy to guide you through that process step by step.",
       "Great question! This is something many users ask about.",
       "Let me break that down for you in simple terms...",

@@ -18,7 +18,7 @@ export default function ProfileFormTransition({
   const [currentStep, setCurrentStep] = useState(0);
   const steps = [
     { title: "Account Created", message: "Your account has been successfully created!" },
-    { title: "Welcome", message: `Welcome to CodeVeer, ${userName}!` },
+    { title: "Welcome", message: `Welcome to CodeFlex, ${userName}!` },
     { title: "Role Setup", message: `You're joining as a ${userRole}. Let's personalize your experience.` },
     { title: "Profile Setup", message: "Complete your profile to unlock personalized content and features." }
   ];
@@ -48,7 +48,7 @@ export default function ProfileFormTransition({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-40 flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900"
+          className="fixed inset-0 z-40 flex items-center justify-center bg-gradient-to-br from-[#f8fafc] via-[#e6f6f2] to-[#e0e7ff] dark:from-[#18181b] dark:via-[#23243a] dark:to-[#1a1f2b]"
         >
           <div className="max-w-md w-full mx-4">
             {/* Progress Steps */}

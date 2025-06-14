@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { useTheme } from "next-themes";
 import { useAuth } from "../contexts/AuthContext";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 // Navigation links for authenticated users
 const authenticatedNavLinks = [
@@ -82,9 +83,10 @@ export default function Navbar() {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-8 flex items-center justify-between h-20">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 group">
+        <Link href="/" className="flex items-center gap-4 min-w-[56px] group">
+          <Image src="/logo.PNG" alt="CodeFlex Logo" width={56} height={56} className="rounded-full shadow-md" priority />
           <span className="text-2xl font-bold text-blue-600 dark:text-blue-400 group-hover:scale-105 transition-transform duration-200">
-            <span className="inline-block align-middle">&lt;/&gt;</span> code<span className="text-indigo-500 dark:text-indigo-400">Veer</span>
+            Code<span className="text-indigo-500 dark:text-indigo-400">Flex</span>
           </span>
         </Link>
 

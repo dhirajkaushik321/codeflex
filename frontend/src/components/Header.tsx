@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { User, LayoutDashboard } from 'lucide-react';
+import Image from 'next/image';
 
 export default function Header() {
   return (
@@ -13,8 +14,8 @@ export default function Header() {
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
         {/* App Name / Logo */}
         <Link href="/dashboard" className="flex items-center gap-2 text-2xl font-bold text-blue-600 dark:text-blue-400">
-          <LayoutDashboard className="w-7 h-7" />
-          codeVeer
+          <Image src="/logo.PNG" alt="CodeFlex Logo" width={32} height={32} className="rounded-full shadow-md" priority />
+          Code<span className="text-indigo-500 dark:text-indigo-400">Flex</span>
         </Link>
 
         {/* Navigation (expand as needed) */}

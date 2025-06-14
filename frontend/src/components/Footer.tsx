@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 const practiceLinks = [
   { name: "MCQs", href: "/mcqs" },
@@ -38,8 +39,8 @@ export default function Footer() {
         {/* Left: Logo & Desc */}
         <div className="flex-1 mb-8 md:mb-0">
           <div className="flex items-center gap-2 mb-3">
-            <span className="text-xl font-bold text-blue-600 dark:text-blue-400">&lt;/&gt;</span>
-            <span className="text-xl font-bold text-gray-900 dark:text-white">code<span className="text-indigo-500 dark:text-indigo-400">Veer</span></span>
+            <Image src="/logo.PNG" alt="CodeFlex Logo" width={32} height={32} className="rounded-full shadow-md" priority />
+            <span className="text-xl font-bold text-gray-900 dark:text-white">Code<span className="text-indigo-500 dark:text-indigo-400">Flex</span></span>
           </div>
           <p className="text-gray-600 dark:text-gray-300 mb-4 max-w-xs">
             Comprehensive technical interview preparation platform powered by AI.
@@ -93,7 +94,7 @@ export default function Footer() {
         </div>
       </div>
       <div className="text-center text-gray-400 dark:text-gray-500 text-sm mt-10">
-        © 2024 codeVeer. All rights reserved.
+        © 2024 CodeFlex. All rights reserved.
       </div>
     </footer>
   );

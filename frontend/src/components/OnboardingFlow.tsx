@@ -43,18 +43,18 @@ export default function OnboardingFlow({ onComplete, onSkip }: OnboardingFlowPro
             className="text-center max-w-4xl mx-auto"
           >
             <div className="mb-12">
-              <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-8">
+              <div className="w-24 h-24 bg-gradient-to-br from-[#7ef9c0] to-[#a259f7] rounded-full flex items-center justify-center mx-auto mb-8">
                 <Sparkles className="w-12 h-12 text-white" />
               </div>
               <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-6">
-                Welcome to codeVeer!
+                Welcome to CodeFlex!
               </h1>
               <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">
                 Let's create your developer profile to unlock amazing opportunities
               </p>
             </div>
 
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 mb-8">
+            <div className="bg-white dark:bg-[#23243a] rounded-2xl shadow-xl p-8 mb-8">
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
                 Create Your Profile
               </h2>

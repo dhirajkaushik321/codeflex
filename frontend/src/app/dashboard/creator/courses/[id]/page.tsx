@@ -445,7 +445,8 @@ export default function CourseEditorPage() {
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (state.isResizing) {
-        const newWidth: number = Math.max(200, Math.min(600, e.clientX));
+        // Calculate new width based on mouse position relative to the viewport
+        const newWidth = Math.max(280, Math.min(600, e.clientX));
         setState(prev => ({ ...prev, sidebarWidth: newWidth }));
       }
     };
@@ -961,72 +962,29 @@ export default function CourseEditorPage() {
     });
   };
 
-  const handleNodeReorder = (nodeId: string, newOrder: number) => {
+  const handleNodeReorder = (parentId: string, newOrder: string[]) => {
     setState(prev => {
       // Deep clone the course to avoid mutation issues
       const newCourse = JSON.parse(JSON.stringify(prev.course));
-      
-      // Reorder modules
-      if (newCourse.modules) {
-        for (let i = 0; i < newCourse.modules.length; i++) {
-          const module = newCourse.modules[i];
-          
-          if (module.id === nodeId) {
-            // Move module to new position
-            const [movedModule] = newCourse.modules.splice(i, 1);
-            newCourse.modules.splice(newOrder, 0, movedModule);
-            
-            // Update order values
-            newCourse.modules.forEach((m: Module, idx: number) => {
-              m.order = idx;
-            });
-            
-            return { ...prev, course: newCourse };
-          }
-          
-          // Reorder lessons
-          if (module.lessons) {
-            for (let j = 0; j < module.lessons.length; j++) {
-              const lesson = module.lessons[j];
-              
-              if (lesson.id === nodeId) {
-                // Move lesson to new position
-                const [movedLesson] = module.lessons.splice(j, 1);
-                module.lessons.splice(newOrder, 0, movedLesson);
-                
-                // Update order values
-                module.lessons.forEach((l: Lesson, idx: number) => {
-                  l.order = idx;
-                });
-                
-                return { ...prev, course: newCourse };
-              }
-              
-              // Reorder pages
-              if (lesson.pages) {
-                for (let k = 0; k < lesson.pages.length; k++) {
-                  const page = lesson.pages[k];
-                  
-                  if (page.id === nodeId) {
-                    // Move page to new position
-                    const [movedPage] = lesson.pages.splice(k, 1);
-                    lesson.pages.splice(newOrder, 0, movedPage);
-                    
-                    // Update order values
-                    lesson.pages.forEach((p: Page, idx: number) => {
-                      p.order = idx;
-                    });
-                    
-                    return { ...prev, course: newCourse };
-                  }
-                }
-              }
-            }
-          }
+      // Helper to reorder children by newOrder
+      function reorderChildren(children: any[], newOrder: string[]) {
+        return newOrder.map(id => children.find(child => child.id === id)).filter(Boolean);
+      }
+      // Recursive function to find and reorder children
+      function recursiveReorder(node: any) {
+        if (node.id === parentId && node.children) {
+          node.children = reorderChildren(node.children, newOrder);
+          // Update order property if present
+          node.children.forEach((child: any, idx: number) => { child.order = idx; });
+        } else if (node.children) {
+          node.children.forEach(recursiveReorder);
         }
       }
-      
-      return prev;
+      // Convert course to node structure if needed
+      let rootNode = convertCourseToNode(newCourse);
+      recursiveReorder(rootNode);
+      // Convert back to course structure if needed (optional, if your app expects it)
+      return { ...prev, course: newCourse };
     });
   };
 
@@ -1217,39 +1175,33 @@ export default function CourseEditorPage() {
       {/* Main Content Area */}
       <div className="flex-1 flex overflow-hidden">
         {/* Left Sidebar */}
-        <AnimatePresence>
-          {!state.isSidebarCollapsed && (
-            <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: `${state.sidebarWidth}px` }}
-              exit={{ width: 0 }}
-              transition={{ duration: 0.3, ease: "easeInOut" }}
-              className="bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col relative"
+        {!state.isSidebarCollapsed && (
+          <div
+            className="bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col relative flex-shrink-0"
+            style={{ width: state.sidebarWidth }}
+          >
+            <CourseSidebar
+              course={courseNode}
+              onNodeSelect={handleNodeSelect}
+              onNodeUpdate={handleNodeUpdate}
+              onNodeDelete={handleNodeDelete}
+              onNodeDuplicate={handleNodeDuplicate}
+              onNodeAdd={handleNodeAdd}
+              onNodeReorder={handleNodeReorder}
+              selectedNodeId={state.selectedNodeId}
+            />
+            {/* Inline Resize Handle */}
+            <div
+              ref={resizeRef}
+              className="absolute right-0 top-0 bottom-0 w-1 hover:w-2 bg-transparent hover:bg-blue-500 dark:hover:bg-blue-400 cursor-col-resize transition-all duration-200 group"
+              onMouseDown={() => setState(prev => ({ ...prev, isResizing: true }))}
             >
-              <CourseSidebar
-                course={courseNode}
-                onNodeSelect={handleNodeSelect}
-                onNodeUpdate={handleNodeUpdate}
-                onNodeDelete={handleNodeDelete}
-                onNodeDuplicate={handleNodeDuplicate}
-                onNodeAdd={handleNodeAdd}
-                onNodeReorder={handleNodeReorder}
-                selectedNodeId={state.selectedNodeId}
-              />
-
-              {/* Resize Handle */}
-              <div
-                ref={resizeRef}
-                className="absolute right-0 top-0 bottom-0 w-1 bg-gray-300 dark:bg-gray-600 hover:bg-blue-500 dark:hover:bg-blue-400 cursor-col-resize transition-colors"
-                onMouseDown={() => setState(prev => ({ ...prev, isResizing: true }))}
-              >
-                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                  <GripVertical className="w-3 h-3 text-gray-400" />
-                </div>
+              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <GripVertical className="w-3 h-3 text-blue-500 dark:text-blue-400" />
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+            </div>
+          </div>
+        )}
 
         {/* Sidebar Toggle Button (when collapsed) */}
         {state.isSidebarCollapsed && (
@@ -1266,7 +1218,7 @@ export default function CourseEditorPage() {
         )}
 
         {/* Center Editor Area */}
-        <div className="flex-1 flex flex-col bg-white dark:bg-gray-900">
+        <div className="flex-1 flex flex-col bg-white dark:bg-gray-900 min-w-0">
           <div className="flex-1 overflow-auto p-6">
             {state.selectedNodeId ? (
               <div className="max-w-4xl mx-auto">

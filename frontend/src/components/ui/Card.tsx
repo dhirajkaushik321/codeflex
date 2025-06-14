@@ -23,7 +23,7 @@ export default function Card({
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay }}
       whileHover={hover ? { scale: 1.02 } : {}}
-      className={`bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 ${className}`}
+      className={`bg-white dark:bg-[#23243a] rounded-xl shadow-sm border border-gray-200 dark:border-[#23243a] p-6 ${className}`}
       onClick={onClick}
     >
       {children}

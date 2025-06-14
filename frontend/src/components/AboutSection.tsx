@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import Image from "next/image";
 
 const stats = [
   { number: "50K+", label: "Active Users" },
@@ -29,7 +30,7 @@ export default function AboutSection() {
   }, []);
 
   return (
-    <section id="about" className="w-full py-16 md:py-24 bg-white dark:bg-gray-900">
+    <section id="about" className="w-full py-16 md:py-24 bg-gradient-to-br from-[#f8fafc] via-[#e6f6f2] to-[#e0e7ff] dark:from-[#18181b] dark:via-[#23243a] dark:to-[#1a1f2b]">
       <div className="max-w-7xl mx-auto px-4 sm:px-8">
         <motion.div
           className="text-center mb-16"
@@ -37,11 +38,14 @@ export default function AboutSection() {
           initial="hidden"
           animate={show ? "show" : "hidden"}
         >
+          <div className="flex justify-center mb-4">
+            <Image src="/logo.PNG" alt="CodeFlex Logo" width={48} height={48} className="rounded-full shadow-lg" priority />
+          </div>
           <motion.h2
             className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-6"
             variants={item}
           >
-            About codeVeer
+            About CodeFlex
           </motion.h2>
           <motion.p
             className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-12"
@@ -121,12 +125,12 @@ export default function AboutSection() {
           </motion.div>
 
           <motion.div
-            className="bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-800 dark:to-gray-700 rounded-2xl p-8"
+            className="bg-gradient-to-br from-[#e6f6f2] to-[#e0e7ff] dark:from-[#23243a] dark:to-[#1a1f2b] rounded-2xl p-8"
             variants={item}
             whileHover={{ scale: 1.02 }}
           >
             <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-              Why Choose codeVeer?
+              Why Choose CodeFlex?
             </h3>
             <div className="space-y-4">
               <div className="flex items-center gap-3">

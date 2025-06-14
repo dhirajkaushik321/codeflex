@@ -73,10 +73,10 @@ export default function SuccessCelebration({
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.8, opacity: 0 }}
             transition={{ duration: 0.5, ease: "easeOut" }}
-            className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4 text-center relative overflow-hidden"
+            className="bg-white dark:bg-[#23243a] rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4 text-center relative overflow-hidden"
           >
             {/* Background Pattern */}
-            <div className="absolute inset-0 bg-gradient-to-br from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 opacity-50" />
+            <div className="absolute inset-0 bg-gradient-to-br from-green-50 to-blue-50 dark:from-[#23243a]/60 dark:to-[#1a1f2b]/60 opacity-50" />
             
             <div className="relative z-10">
               {/* Success Icon */}

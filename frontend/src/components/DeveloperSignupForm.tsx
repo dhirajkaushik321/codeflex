@@ -477,7 +477,7 @@ export default function DeveloperSignupForm({ onComplete }: { onComplete?: () =>
       <SuccessCelebration
         isVisible={showSuccessCelebration}
         onComplete={() => setShowSuccessCelebration(false)}
-        message="Profile completed successfully! Welcome to CodeVeer. Let's start your learning journey!"
+        message="Profile completed successfully! Welcome to CodeFlex. Let's start your learning journey!"
       />
     </>
   );

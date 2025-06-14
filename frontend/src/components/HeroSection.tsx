@@ -55,7 +55,7 @@ export default function HeroSection() {
   }
 
   return (
-    <section id="home" className="w-full py-16 md:py-24 bg-gradient-to-br from-blue-50 via-white to-blue-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <section id="home" className="w-full py-16 md:py-24 bg-gradient-to-br from-[#f8fafc] via-[#e6f6f2] to-[#e0e7ff] dark:from-[#18181b] dark:via-[#23243a] dark:to-[#1a1f2b]">
       <div className="max-w-7xl mx-auto px-4 sm:px-8 flex flex-col md:flex-row items-center gap-12">
         {/* Left: Text */}
         <motion.div
@@ -64,13 +64,16 @@ export default function HeroSection() {
           initial="hidden"
           animate={show ? "show" : "hidden"}
         >
+          <div className="flex justify-center mb-4">
+            <Image src="/logo.PNG" alt="CodeFlex Logo" width={64} height={64} className="rounded-full shadow-lg" priority />
+          </div>
           <motion.h1
-            className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white leading-tight"
+            className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white leading-tight text-center"
             initial={{ opacity: 0, x: -40 }}
             animate={show ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.7, type: "spring" }}
           >
-            Master Technical Interviews with <span className="text-blue-600 dark:text-blue-400">code<span className="text-indigo-500 dark:text-indigo-400">Veer</span></span>
+            Master Technical Interviews with <span className="text-blue-600 dark:text-blue-400">Code<span className="text-indigo-500 dark:text-indigo-400">Flex</span></span>
           </motion.h1>
           <motion.p
             className="text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-xl"

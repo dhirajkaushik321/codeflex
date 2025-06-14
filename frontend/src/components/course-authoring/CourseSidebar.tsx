@@ -32,6 +32,7 @@ import {
 } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
+import ReactDOM from 'react-dom';
 
 export interface CourseNode {
   id: string;
@@ -54,7 +55,7 @@ interface CourseSidebarProps {
   onNodeDelete: (nodeId: string, nodeTitle: string) => void;
   onNodeDuplicate: (nodeId: string) => void;
   onNodeAdd: (parentId: string, type: CourseNode['type']) => void;
-  onNodeReorder: (nodeId: string, newOrder: number) => void;
+  onNodeReorder: (parentId: string, newOrder: string[]) => void;
   selectedNodeId?: string;
 }
 
@@ -87,6 +88,8 @@ const TreeNode = ({
   const [isHovered, setIsHovered] = useState(false);
   const [showAddMenu, setShowAddMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const addButtonRef = useRef<HTMLButtonElement>(null);
+  const [dropdownPosition, setDropdownPosition] = useState<{ top: number; left: number } | null>(null);
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -250,6 +253,17 @@ const TreeNode = ({
     return options;
   };
 
+  const handleAddMenuOpen = () => {
+    if (addButtonRef.current) {
+      const rect = addButtonRef.current.getBoundingClientRect();
+      setDropdownPosition({
+        top: rect.bottom + window.scrollY + 8, // 8px margin
+        left: rect.right - 256, // 256px = dropdown width
+      });
+    }
+    setShowAddMenu(true);
+  };
+
   return (
     <div className="relative">
       <motion.div
@@ -370,8 +384,9 @@ const TreeNode = ({
               {/* Add Button */}
               {canAddChildren && (
                 <button
+                  ref={addButtonRef}
                   className="p-1.5 rounded-md hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors text-blue-600 dark:text-blue-400"
-                  onClick={() => setShowAddMenu(!showAddMenu)}
+                  onClick={handleAddMenuOpen}
                   title="Add content"
                 >
                   <Plus className="w-4 h-4" />
@@ -391,46 +406,50 @@ const TreeNode = ({
         </AnimatePresence>
 
         {/* Add Content Menu */}
-        <AnimatePresence>
-          {showAddMenu && (
-            <motion.div
-              ref={menuRef}
-              initial={{ opacity: 0, scale: 0.95, y: -10 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: -10 }}
-              transition={{ duration: 0.15 }}
-              className="absolute right-0 top-full mt-1 w-64 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 z-50"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="p-3">
-                <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
-                  <Plus className="w-4 h-4 text-blue-600" />
-                  Add Content
-                </h3>
-                <div className="space-y-1">
-                  {getAddOptions().map((option) => (
-                    <button
-                      key={option.type}
-                      className="w-full flex items-center gap-3 p-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors group"
-                      onClick={() => {
-                        onAdd(node.id, option.type as CourseNode['type']);
-                        setShowAddMenu(false);
-                      }}
-                    >
-                      <div className="p-1.5 rounded-md bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 group-hover:bg-blue-200 dark:group-hover:bg-blue-900/50 transition-colors">
-                        {option.icon}
-                      </div>
-                      <div className="text-left">
-                        <div className="font-medium">{option.label}</div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400">{option.description}</div>
-                      </div>
-                    </button>
-                  ))}
-                </div>
+        {showAddMenu && dropdownPosition && ReactDOM.createPortal(
+          <motion.div
+            ref={menuRef}
+            initial={{ opacity: 0, scale: 0.95, y: -10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: -10 }}
+            transition={{ duration: 0.15 }}
+            className="fixed w-64 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 z-50"
+            style={{
+              top: dropdownPosition.top,
+              left: dropdownPosition.left,
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="absolute -top-2 right-4 w-4 h-4 bg-white dark:bg-gray-800 border-l border-t border-gray-200 dark:border-gray-700 transform rotate-45"></div>
+            <div className="p-3">
+              <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                <Plus className="w-4 h-4 text-blue-600" />
+                Add Content
+              </h3>
+              <div className="space-y-1 max-h-64 overflow-y-auto">
+                {getAddOptions().map((option) => (
+                  <button
+                    key={option.type}
+                    className="w-full flex items-center gap-3 p-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors group"
+                    onClick={() => {
+                      onAdd(node.id, option.type as CourseNode['type']);
+                      setShowAddMenu(false);
+                    }}
+                  >
+                    <div className="p-1.5 rounded-md bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 group-hover:bg-blue-200 dark:group-hover:bg-blue-900/50 transition-colors">
+                      {option.icon}
+                    </div>
+                    <div className="text-left">
+                      <div className="font-medium">{option.label}</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">{option.description}</div>
+                    </div>
+                  </button>
+                ))}
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+            </div>
+          </motion.div>,
+          document.body
+        )}
 
         {/* Contextual Menu */}
         <AnimatePresence>
