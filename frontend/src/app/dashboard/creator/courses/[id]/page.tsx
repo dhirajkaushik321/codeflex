@@ -16,7 +16,7 @@ import {
   Plus,
   GripVertical
 } from 'lucide-react';
-import { Course, Module, Lesson, Page } from '@/types/course';
+import { Course, Module, Lesson, Page, Quiz } from '@/types/course';
 import Button from '@/components/ui/Button';
 import CourseSidebar, { CourseNode } from '@/components/course-authoring/CourseSidebar';
 import QuillEditor from '@/components/course-authoring/QuillEditor';
@@ -772,51 +772,70 @@ export default function CourseEditorPage() {
           }
         }
       } else if (type === 'quiz') {
-        // Add quiz at module or lesson level
-        for (const module of newCourse.modules || []) {
-          if (module.id === parentId) {
-            // Module-level quiz
-            const newQuiz = {
-              id: `module-quiz-${timestamp}-${random}`,
-              title: 'New Module Quiz',
-              description: '',
-              problemStatement: '',
-              testCases: [],
-              programmingLanguage: 'javascript',
-              difficulty: 'beginner',
-              points: 100,
-              hints: [],
-              tags: [],
-              order: (module.quizzes?.length || 0),
-              status: 'draft',
-              estimatedTime: 30
-            };
-            module.quizzes = [...(module.quizzes || []), newQuiz];
-            console.log('Added module quiz:', newQuiz);
-            break;
-          }
-          
-          for (const lesson of module.lessons || []) {
-            if (lesson.id === parentId) {
-              // Lesson-level quiz
+        // Add quiz at course, module, or lesson level
+        if (parentId === newCourse.id || parentId === 'new-course') {
+          // Course-level quiz
+          const newQuiz = {
+            id: `course-quiz-${timestamp}-${random}`,
+            title: 'New Course Quiz',
+            description: '',
+            type: 'multiple-choice',
+            questions: [],
+            passingScore: 70,
+            points: 100,
+            difficulty: 'beginner',
+            tags: [],
+            order: (newCourse.quizzes?.length || 0),
+            status: 'draft',
+            estimatedTime: 45
+          };
+          newCourse.quizzes = [...(newCourse.quizzes || []), newQuiz];
+          console.log('Added course quiz:', newQuiz);
+        } else {
+          // Add quiz at module or lesson level
+          for (const module of newCourse.modules || []) {
+            if (module.id === parentId) {
+              // Module-level quiz
               const newQuiz = {
-                id: `lesson-quiz-${timestamp}-${random}`,
-                title: 'New Lesson Quiz',
+                id: `module-quiz-${timestamp}-${random}`,
+                title: 'New Module Quiz',
                 description: '',
-                problemStatement: '',
-                testCases: [],
-                programmingLanguage: 'javascript',
+                type: 'multiple-choice',
+                questions: [],
+                passingScore: 70,
+                points: 100,
                 difficulty: 'beginner',
-                points: 50,
-                hints: [],
                 tags: [],
-                order: (lesson.quizzes?.length || 0),
+                order: (module.quizzes?.length || 0),
                 status: 'draft',
-                estimatedTime: 15
+                estimatedTime: 30
               };
-              lesson.quizzes = [...(lesson.quizzes || []), newQuiz];
-              console.log('Added lesson quiz:', newQuiz);
+              module.quizzes = [...(module.quizzes || []), newQuiz];
+              console.log('Added module quiz:', newQuiz);
               break;
+            }
+            
+            for (const lesson of module.lessons || []) {
+              if (lesson.id === parentId) {
+                // Lesson-level quiz
+                const newQuiz = {
+                  id: `lesson-quiz-${timestamp}-${random}`,
+                  title: 'New Lesson Quiz',
+                  description: '',
+                  type: 'multiple-choice',
+                  questions: [],
+                  passingScore: 70,
+                  points: 50,
+                  difficulty: 'beginner',
+                  tags: [],
+                  order: (lesson.quizzes?.length || 0),
+                  status: 'draft',
+                  estimatedTime: 15
+                };
+                lesson.quizzes = [...(lesson.quizzes || []), newQuiz];
+                console.log('Added lesson quiz:', newQuiz);
+                break;
+              }
             }
           }
         }
@@ -1003,6 +1022,125 @@ export default function CourseEditorPage() {
     }
     
     return '';
+  };
+
+  // Add getSelectedQuiz function
+  const getSelectedQuiz = (): Quiz | undefined => {
+    if (!state.selectedNodeId || !state.course.modules) return undefined;
+    
+    // Search through the course structure to find the selected quiz
+    for (const module of state.course.modules) {
+      // Check module-level quizzes
+      if (module.quizzes) {
+        for (const quiz of module.quizzes) {
+          if (quiz.id === state.selectedNodeId) {
+            return quiz;
+          }
+        }
+      }
+      
+      if (module.lessons) {
+        for (const lesson of module.lessons) {
+          // Check lesson-level quizzes
+          if (lesson.quizzes) {
+            for (const quiz of lesson.quizzes) {
+              if (quiz.id === state.selectedNodeId) {
+                return quiz;
+              }
+            }
+          }
+        }
+      }
+    }
+    
+    // Check course-level quizzes
+    if (state.course.quizzes) {
+      for (const quiz of state.course.quizzes) {
+        if (quiz.id === state.selectedNodeId) {
+          return quiz;
+        }
+      }
+    }
+    
+    return undefined;
+  };
+
+  // Add handleQuizSave function
+  const handleQuizSave = (updatedQuiz: Quiz) => {
+    if (!state.selectedNodeId) return;
+    
+    updateUserActivity(); // Track user activity
+    
+    setState(prev => {
+      // Deep clone the course to avoid mutation issues
+      const newCourse = JSON.parse(JSON.stringify(prev.course));
+      let quizUpdated = false;
+      
+      // Update the quiz in the course structure
+      // Check course-level quizzes
+      if (newCourse.quizzes) {
+        for (let i = 0; i < newCourse.quizzes.length; i++) {
+          if (newCourse.quizzes[i].id === state.selectedNodeId) {
+            newCourse.quizzes[i] = updatedQuiz;
+            quizUpdated = true;
+            break;
+          }
+        }
+      }
+      
+      // Check module-level quizzes
+      if (!quizUpdated && newCourse.modules) {
+        for (const module of newCourse.modules) {
+          if (module.quizzes) {
+            for (let i = 0; i < module.quizzes.length; i++) {
+              if (module.quizzes[i].id === state.selectedNodeId) {
+                module.quizzes[i] = updatedQuiz;
+                quizUpdated = true;
+                break;
+              }
+            }
+          }
+          if (quizUpdated) break;
+        }
+      }
+      
+      // Check lesson-level quizzes
+      if (!quizUpdated && newCourse.modules) {
+        for (const module of newCourse.modules) {
+          if (module.lessons) {
+            for (const lesson of module.lessons) {
+              if (lesson.quizzes) {
+                for (let i = 0; i < lesson.quizzes.length; i++) {
+                  if (lesson.quizzes[i].id === state.selectedNodeId) {
+                    lesson.quizzes[i] = updatedQuiz;
+                    quizUpdated = true;
+                    break;
+                  }
+                }
+              }
+              if (quizUpdated) break;
+            }
+          }
+          if (quizUpdated) break;
+        }
+      }
+      
+      // If quiz was updated, return new state
+      if (quizUpdated) {
+        // Clear any existing auto-save timeout
+        if (prev.saveTimeoutId) {
+          clearTimeout(prev.saveTimeoutId);
+        }
+        
+        return {
+          ...prev,
+          course: newCourse,
+          lastSaved: null // Reset lastSaved to trigger auto-save
+        };
+      }
+      
+      return prev;
+    });
   };
   
   // Add handleContentUpdate function
@@ -1220,7 +1358,10 @@ export default function CourseEditorPage() {
         <div className="flex-1 flex flex-col bg-white dark:bg-gray-900 min-w-0">
           <div className="flex-1 overflow-auto p-6">
             {state.selectedNodeId && getSelectedNodeType() === 'quiz' ? (
-              <QuizBuilder />
+              <QuizBuilder 
+                quiz={getSelectedQuiz()} 
+                onSave={handleQuizSave} 
+              />
             ) : state.selectedNodeId ? (
               <div className="max-w-4xl mx-auto">
                 <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">

@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { GripVertical, Trash2 } from 'lucide-react';
 import QuillEditor from './QuillEditor';
+import { Quiz, QuizQuestion } from '@/types/course';
 
 function ProgressBar({ current, total }: { current: number; total: number }) {
   return (
@@ -25,36 +26,36 @@ function OptionItem({
   dragHandleProps,
   isDragging,
 }: any) {
-  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: option.id });
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+  } = useSortable({ id: option.id });
+
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
   };
+
   return (
     <li
       ref={setNodeRef}
       style={style}
-      className={`flex items-center gap-3 px-4 py-3 rounded-md border border-gray-200 bg-white transition-colors duration-200 cursor-pointer select-none
-        ${selected ? 'border-blue-500 ring-2 ring-blue-200' : ''}
-        hover:bg-blue-50 hover:border-blue-300
-        ${isDragging ? 'scale-95 shadow-lg' : ''}
-      `}
-      role="radio"
-      aria-checked={selected}
-      tabIndex={0}
+      className={`flex items-center gap-3 p-4 rounded-lg border-2 transition-all duration-200 cursor-pointer ${
+        selected
+          ? 'border-blue-500 bg-blue-50 shadow-md'
+          : 'border-gray-200 hover:border-gray-300 bg-white'
+      } ${isDragging ? 'opacity-50' : ''}`}
       onClick={onSelect}
-      onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && onSelect()}
     >
-      <span {...dragHandleProps} {...attributes} {...listeners} className="cursor-grab active:scale-90 transition-transform">
-        <GripVertical className="w-4 h-4 text-gray-400" />
-      </span>
-      <input
-        type="radio"
-        checked={selected}
-        onChange={onSelect}
-        className="accent-blue-500 w-5 h-5"
-        aria-label={`Select option ${index + 1}`}
-      />
+      <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing">
+        <GripVertical className="w-5 h-5 text-gray-400" />
+      </div>
+      <div className="flex items-center justify-center w-6 h-6 rounded-full border-2 border-gray-300 bg-white">
+        <div className={`w-3 h-3 rounded-full transition-colors ${selected ? 'bg-blue-500' : 'bg-transparent'}`} />
+      </div>
       <input
         type="text"
         value={option.text}
@@ -105,9 +106,15 @@ function OptionList({ options, selectedId, onSelect, onDelete, onReorder, onEdit
   );
 }
 
-export default function QuizBuilder() {
+interface QuizBuilderProps {
+  quiz?: Quiz;
+  onSave?: (quiz: Quiz) => void;
+}
+
+export default function QuizBuilder({ quiz, onSave }: QuizBuilderProps) {
   const blankOption = () => ({ id: `opt-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`, text: '' });
   const blankQuestion = () => ({
+    id: `q-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
     prompt: '',
     options: [blankOption(), blankOption()],
     correctId: '',
@@ -115,10 +122,82 @@ export default function QuizBuilder() {
     feedback: null as 'correct' | 'incorrect' | null,
   });
 
+  // Initialize questions from quiz prop or with a blank question
   const [questions, setQuestions] = useState([blankQuestion()]);
   const [current, setCurrent] = useState(0);
+  const [quizTitle, setQuizTitle] = useState(quiz?.title || 'New Quiz');
+  const [quizDescription, setQuizDescription] = useState(quiz?.description || '');
+
+  // Load quiz data when quiz prop changes
+  useEffect(() => {
+    if (quiz) {
+      setQuizTitle(quiz.title);
+      setQuizDescription(quiz.description || '');
+      
+      if (quiz.questions && quiz.questions.length > 0) {
+        // Convert QuizQuestion format to internal format
+        const convertedQuestions = quiz.questions.map(q => ({
+          id: q.id,
+          prompt: q.question,
+          options: q.options?.map((opt, idx) => ({
+            id: `opt-${q.id}-${idx}`,
+            text: opt
+          })) || [blankOption(), blankOption()],
+          correctId: q.correctAnswer ? `opt-${q.id}-${q.options?.indexOf(q.correctAnswer as string) || 0}` : '',
+          selectedId: null,
+          feedback: null,
+        }));
+        setQuestions(convertedQuestions);
+        setCurrent(0);
+      } else {
+        setQuestions([blankQuestion()]);
+        setCurrent(0);
+      }
+    }
+  }, [quiz]);
 
   const q = questions[current];
+
+  // Save quiz data to course state
+  const saveQuiz = () => {
+    if (!onSave) return;
+
+    const quizData: Quiz = {
+      id: quiz?.id || `quiz-${Date.now()}`,
+      title: quizTitle,
+      description: quizDescription,
+      type: 'multiple-choice',
+      questions: questions.map(q => ({
+        id: q.id,
+        question: q.prompt,
+        type: 'multiple-choice',
+        options: q.options.map(opt => opt.text),
+        correctAnswer: q.correctId ? q.options.find(opt => opt.id === q.correctId)?.text : undefined,
+        points: 1,
+        difficulty: 'beginner'
+      })),
+      passingScore: 70,
+      points: 100,
+      difficulty: 'beginner',
+      tags: [],
+      order: quiz?.order || 0,
+      status: quiz?.status || 'draft',
+      estimatedTime: 15
+    };
+
+    onSave(quizData);
+  };
+
+  // Auto-save when questions change
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (questions.length > 0 && questions.some(q => q.prompt.trim())) {
+        saveQuiz();
+      }
+    }, 2000);
+
+    return () => clearTimeout(timeoutId);
+  }, [questions, quizTitle, quizDescription]);
 
   // Option handlers
   const handleAddOption = () => {
@@ -177,14 +256,31 @@ export default function QuizBuilder() {
   const handleNext = () => setCurrent(c => Math.min(questions.length - 1, c + 1));
 
   return (
-    <div className="w-full max-w-2xl mx-auto">
+    <div className="w-full max-w-4xl mx-auto">
+      {/* Quiz Header */}
+      <div className="mb-6 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+        <input
+          type="text"
+          value={quizTitle}
+          onChange={(e) => setQuizTitle(e.target.value)}
+          className="text-2xl font-bold text-gray-900 dark:text-white bg-transparent border-none outline-none focus:ring-0 w-full mb-3"
+          placeholder="Quiz Title"
+        />
+        <QuillEditor
+          content={quizDescription}
+          onChange={setQuizDescription}
+          placeholder="Quiz description..."
+          className="min-h-[100px]"
+        />
+      </div>
+
       <ProgressBar current={current + 1} total={questions.length} />
-      <div className={`bg-white rounded-lg shadow-md px-10 py-8 w-full transition-all duration-300
+      <div className={`bg-white dark:bg-gray-800 rounded-lg shadow-md px-10 py-8 w-full transition-all duration-300
         ${q.feedback === 'correct' ? 'border-green-500 ring-2 ring-green-200 animate-[glow-green_1s_ease]' : ''}
         ${q.feedback === 'incorrect' ? 'border-red-500 ring-2 ring-red-200 animate-[glow-red_1s_ease]' : ''}
       `}>
         <div className="flex items-center justify-between mb-6">
-          <div className="text-2xl font-semibold text-gray-900">Question</div>
+          <div className="text-2xl font-semibold text-gray-900 dark:text-white">Question</div>
           <div className="flex gap-2">
             <button
               onClick={handlePrev}

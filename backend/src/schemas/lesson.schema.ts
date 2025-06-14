@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { Page, PageSchema } from './page.schema';
+import { Quiz, QuizSchema } from './quiz.schema';
 
 @Schema({ _id: false })
 export class Lesson {
@@ -15,6 +16,9 @@ export class Lesson {
 
   @Prop({ type: [PageSchema], default: [] })
   pages: Page[];
+
+  @Prop({ type: [QuizSchema], default: [] })
+  quizzes: Quiz[];
 }
 
 export type LessonDocument = Lesson & Document;

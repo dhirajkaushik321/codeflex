@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { Module, ModuleSchema } from './module.schema';
+import { Quiz, QuizSchema } from './quiz.schema';
 
 @Schema({ timestamps: true })
 export class Course {
@@ -27,6 +28,9 @@ export class Course {
 
   @Prop({ type: [ModuleSchema], default: [] })
   modules: Module[];
+
+  @Prop({ type: [QuizSchema], default: [] })
+  quizzes: Quiz[];
 
   @Prop({ required: true })
   ownerId: string; // For multi-user support
