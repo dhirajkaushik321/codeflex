@@ -25,7 +25,7 @@ import { useToast } from '@/contexts/ToastContext';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import { AxiosError } from 'axios';
-import QuizEditorContainer from '@/components/course-authoring/QuizEditorContainer';
+import QuizBuilder from '@/components/course-authoring/QuizBuilder';
 
 interface CourseEditorState {
   course: Partial<Course>;
@@ -48,8 +48,6 @@ interface CourseEditorState {
   lastSavedCourse: string; // JSON string of last saved course state
   userActivityTimeoutId?: NodeJS.Timeout;
   isUserActive: boolean;
-  isEditingQuiz: boolean;
-  editingQuizNode: CourseNode | null;
 }
 
 export default function CourseEditorPage() {
@@ -86,8 +84,6 @@ export default function CourseEditorPage() {
     lastSavedCourse: '', // JSON string of last saved course state
     userActivityTimeoutId: undefined,
     isUserActive: true,
-    isEditingQuiz: false,
-    editingQuizNode: null
   });
 
   // Load course data if editing existing course
@@ -484,25 +480,11 @@ export default function CourseEditorPage() {
     setState(prev => ({ ...prev, isPreviewMode: !prev.isPreviewMode }));
   };
 
-  // Utility to find a node by id in the course tree
-  function findNodeById(node: CourseNode, id: string): CourseNode | null {
-    if (node.id === id) return node;
-    if (node.children) {
-      for (const child of node.children) {
-        const found = findNodeById(child, id);
-        if (found) return found;
-      }
-    }
-    return null;
-  }
-
   // Course hierarchy handlers
   const handleNodeSelect = (node: CourseNode) => {
     setState(prev => ({
       ...prev,
       selectedNodeId: node.id,
-      isEditingQuiz: node.type === 'quiz',
-      editingQuizNode: node.type === 'quiz' ? node : null
     }));
   };
 
@@ -790,15 +772,53 @@ export default function CourseEditorPage() {
           }
         }
       } else if (type === 'quiz') {
-        const parent = findNodeById(courseNode, parentId);
-        if (parent && parent.children && parent.children.length > 0) {
-          const newQuizNode = parent.children[parent.children.length - 1];
-          setState(prev => ({
-            ...prev,
-            selectedNodeId: newQuizNode.id,
-            isEditingQuiz: true,
-            editingQuizNode: newQuizNode
-          }));
+        // Add quiz at module or lesson level
+        for (const module of newCourse.modules || []) {
+          if (module.id === parentId) {
+            // Module-level quiz
+            const newQuiz = {
+              id: `module-quiz-${timestamp}-${random}`,
+              title: 'New Module Quiz',
+              description: '',
+              problemStatement: '',
+              testCases: [],
+              programmingLanguage: 'javascript',
+              difficulty: 'beginner',
+              points: 100,
+              hints: [],
+              tags: [],
+              order: (module.quizzes?.length || 0),
+              status: 'draft',
+              estimatedTime: 30
+            };
+            module.quizzes = [...(module.quizzes || []), newQuiz];
+            console.log('Added module quiz:', newQuiz);
+            break;
+          }
+          
+          for (const lesson of module.lessons || []) {
+            if (lesson.id === parentId) {
+              // Lesson-level quiz
+              const newQuiz = {
+                id: `lesson-quiz-${timestamp}-${random}`,
+                title: 'New Lesson Quiz',
+                description: '',
+                problemStatement: '',
+                testCases: [],
+                programmingLanguage: 'javascript',
+                difficulty: 'beginner',
+                points: 50,
+                hints: [],
+                tags: [],
+                order: (lesson.quizzes?.length || 0),
+                status: 'draft',
+                estimatedTime: 15
+              };
+              lesson.quizzes = [...(lesson.quizzes || []), newQuiz];
+              console.log('Added lesson quiz:', newQuiz);
+              break;
+            }
+          }
         }
       } else if (type === 'coding-exercise') {
         // Add coding exercise at module or lesson level
@@ -1041,6 +1061,20 @@ export default function CourseEditorPage() {
     });
   };
 
+  function getSelectedNodeType(): string | null {
+    function findType(node: any): string | null {
+      if (String(node.id) === String(state.selectedNodeId)) return node.type;
+      if (node.children) {
+        for (const child of node.children) {
+          const t: string | null = findType(child);
+          if (t) return t;
+        }
+      }
+      return null;
+    }
+    return findType(courseNode);
+  }
+
   if (state.isLoading) {
     return (
       <div className="h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
@@ -1185,8 +1219,8 @@ export default function CourseEditorPage() {
         {/* Center Editor Area */}
         <div className="flex-1 flex flex-col bg-white dark:bg-gray-900 min-w-0">
           <div className="flex-1 overflow-auto p-6">
-            {state.isEditingQuiz && state.editingQuizNode ? (
-              <QuizEditorContainer quizNode={state.editingQuizNode} />
+            {state.selectedNodeId && getSelectedNodeType() === 'quiz' ? (
+              <QuizBuilder />
             ) : state.selectedNodeId ? (
               <div className="max-w-4xl mx-auto">
                 <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
