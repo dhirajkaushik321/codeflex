@@ -70,45 +70,6 @@ export default function QuillEditor({
     };
   }, []);
 
-  // Remove visual marker rendering - just show raw markers to keep Quill editable
-  // useEffect(() => {
-  //   // Removed to fix typing issues
-  // }, [quillLoaded, content]);
-
-  // Simple edit handler - only open modal when clicking directly on playground marker text
-  // useEffect(() => {
-  //   if (!quillLoaded || !editorRef.current) return;
-  //   const container = editorRef.current;
-  //   const handleEditClick = (e: any) => {
-  //     const target = e.target;
-  //     
-  //     // Only trigger if clicking directly on text that contains the playground marker
-  //     if (target.nodeType === Node.TEXT_NODE && target.textContent && target.textContent.includes('<!--PLAYGROUND:')) {
-  //       e.preventDefault();
-  //       e.stopPropagation();
-  //       
-  //       // Find the original marker in the content
-  //       const html = quillRef.current.root.innerHTML;
-  //       const markerRegex = /&lt;!--PLAYGROUND:([\s\S]*?)--&gt;/g;
-  //       let match;
-  //       let idx = 0;
-  //       while ((match = markerRegex.exec(html)) !== null) {
-  //         if (idx === 0) { // For now, just edit the first one found
-  //           const code = decodeURIComponent(match[1]);
-  //           setEditCode(code);
-  //           setEditMarkerIndex(0);
-  //           setInserting(false);
-  //           setEditModalOpen(true);
-  //           break;
-  //         }
-  //         idx++;
-  //       }
-  //     }
-  //   };
-  //   container.addEventListener('click', handleEditClick);
-  //   return () => container.removeEventListener('click', handleEditClick);
-  // }, [quillLoaded]);
-
   // Update content if it changes from outside
   useEffect(() => {
     if (quillRef.current && content !== quillRef.current.root.innerHTML) {
