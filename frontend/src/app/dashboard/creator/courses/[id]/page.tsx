@@ -16,7 +16,7 @@ import {
   Plus,
   GripVertical
 } from 'lucide-react';
-import { Course, Module, Lesson, Page, Quiz } from '@/types/course';
+import { Course, Module, Lesson, Page, Quiz, CodingExercise } from '@/types/course';
 import Button from '@/components/ui/Button';
 import CourseSidebar, { CourseNode } from '@/components/course-authoring/CourseSidebar';
 import dynamic from 'next/dynamic';
@@ -27,6 +27,7 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import { AxiosError } from 'axios';
 import QuizBuilder from '@/components/course-authoring/QuizBuilder';
+import CodingExerciseBuilder from '@/components/course-authoring/CodingExerciseBuilder';
 import QuillPlaygroundRenderer from '@/components/course-authoring/QuillPlaygroundRenderer';
 
 interface CourseEditorState {
@@ -1201,6 +1202,125 @@ export default function CourseEditorPage() {
     });
   };
 
+  // Add getSelectedCodingExercise function
+  const getSelectedCodingExercise = (): CodingExercise | undefined => {
+    if (!state.selectedNodeId || !state.course.modules) return undefined;
+    
+    // Search through the course structure to find the selected coding exercise
+    for (const module of state.course.modules) {
+      // Check module-level coding exercises
+      if (module.codingExercises) {
+        for (const exercise of module.codingExercises) {
+          if (exercise.id === state.selectedNodeId) {
+            return exercise;
+          }
+        }
+      }
+      
+      if (module.lessons) {
+        for (const lesson of module.lessons) {
+          // Check lesson-level coding exercises
+          if (lesson.codingExercises) {
+            for (const exercise of lesson.codingExercises) {
+              if (exercise.id === state.selectedNodeId) {
+                return exercise;
+              }
+            }
+          }
+        }
+      }
+    }
+    
+    // Check course-level coding exercises
+    if (state.course.codingExercises) {
+      for (const exercise of state.course.codingExercises) {
+        if (exercise.id === state.selectedNodeId) {
+          return exercise;
+        }
+      }
+    }
+    
+    return undefined;
+  };
+
+  // Add handleCodingExerciseSave function
+  const handleCodingExerciseSave = (updatedExercise: CodingExercise) => {
+    if (!state.selectedNodeId) return;
+    
+    updateUserActivity(); // Track user activity
+    
+    setState(prev => {
+      // Deep clone the course to avoid mutation issues
+      const newCourse = JSON.parse(JSON.stringify(prev.course));
+      let exerciseUpdated = false;
+      
+      // Update the exercise in the course structure
+      // Check course-level coding exercises
+      if (newCourse.codingExercises) {
+        for (let i = 0; i < newCourse.codingExercises.length; i++) {
+          if (newCourse.codingExercises[i].id === state.selectedNodeId) {
+            newCourse.codingExercises[i] = updatedExercise;
+            exerciseUpdated = true;
+            break;
+          }
+        }
+      }
+      
+      // Check module-level coding exercises
+      if (!exerciseUpdated && newCourse.modules) {
+        for (const module of newCourse.modules) {
+          if (module.codingExercises) {
+            for (let i = 0; i < module.codingExercises.length; i++) {
+              if (module.codingExercises[i].id === state.selectedNodeId) {
+                module.codingExercises[i] = updatedExercise;
+                exerciseUpdated = true;
+                break;
+              }
+            }
+          }
+          if (exerciseUpdated) break;
+        }
+      }
+      
+      // Check lesson-level coding exercises
+      if (!exerciseUpdated && newCourse.modules) {
+        for (const module of newCourse.modules) {
+          if (module.lessons) {
+            for (const lesson of module.lessons) {
+              if (lesson.codingExercises) {
+                for (let i = 0; i < lesson.codingExercises.length; i++) {
+                  if (lesson.codingExercises[i].id === state.selectedNodeId) {
+                    lesson.codingExercises[i] = updatedExercise;
+                    exerciseUpdated = true;
+                    break;
+                  }
+                }
+              }
+              if (exerciseUpdated) break;
+            }
+          }
+          if (exerciseUpdated) break;
+        }
+      }
+      
+      // If exercise was updated, return new state
+      if (exerciseUpdated) {
+        // Clear any existing auto-save timeout
+        if (prev.saveTimeoutId) {
+          clearTimeout(prev.saveTimeoutId);
+        }
+        
+        return {
+          ...prev,
+          course: newCourse,
+          lastSaved: null // Reset lastSaved to trigger auto-save
+        };
+      }
+      
+      return prev;
+    });
+  };
+
   function getSelectedNodeType(): string | null {
     function findType(node: any): string | null {
       if (String(node.id) === String(state.selectedNodeId)) return node.type;
@@ -1363,6 +1483,11 @@ export default function CourseEditorPage() {
               <QuizBuilder 
                 quiz={getSelectedQuiz()} 
                 onSave={handleQuizSave} 
+              />
+            ) : state.selectedNodeId && getSelectedNodeType() === 'coding-exercise' ? (
+              <CodingExerciseBuilder
+                exercise={getSelectedCodingExercise()}
+                onSave={handleCodingExerciseSave}
               />
             ) : state.selectedNodeId ? (
               <div className="max-w-4xl mx-auto">
