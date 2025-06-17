@@ -1,7 +1,7 @@
 // Main components
 export { default as Playground } from './Playground';
 export { default as ExercisePlayground } from './ExercisePlayground';
-export { default as SandpackEditor } from './SandpackEditor';
+export { default as MonacoEditor } from './MonacoEditor';
 
 // Sub-components
 export { default as TestCaseForm } from './TestCaseForm';

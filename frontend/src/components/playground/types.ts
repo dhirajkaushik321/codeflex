@@ -27,9 +27,15 @@ export interface ExercisePlaygroundProps {
     initialCode: string;
     testCases: TestCase[];
   }) => void;
+  onChange?: (exercise: {
+    title: string;
+    description: string;
+    initialCode: string;
+    testCases: TestCase[];
+  }) => void;
 }
 
-export interface SandpackEditorProps {
+export interface MonacoEditorProps {
   initialCode: string;
   language?: 'javascript' | 'html' | 'css' | 'python';
   readOnly?: boolean;

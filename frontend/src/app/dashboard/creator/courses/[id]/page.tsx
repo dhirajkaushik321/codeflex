@@ -28,6 +28,7 @@ import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import { AxiosError } from 'axios';
 import QuizBuilder from '@/components/course-authoring/QuizBuilder';
 import QuillPlaygroundRenderer from '@/components/course-authoring/QuillPlaygroundRenderer';
+import ExercisePlayground from '@/components/playground/ExercisePlayground';
 
 interface CourseEditorState {
   course: Partial<Course>;
@@ -1215,10 +1216,59 @@ export default function CourseEditorPage() {
     return findType(courseNode);
   }
 
+  // Utility to get the selected coding exercise node
+  const getSelectedCodingExercise = () => {
+    console.log('[CourseEditor] getSelectedCodingExercise called');
+    console.log('[CourseEditor] selectedNodeId:', state.selectedNodeId);
+    console.log('[CourseEditor] course.modules:', state.course.modules);
+    
+    if (!state.selectedNodeId || !state.course.modules) {
+      console.log('[CourseEditor] No selectedNodeId or modules, returning undefined');
+      return undefined;
+    }
+    
+    for (const module of state.course.modules) {
+      console.log('[CourseEditor] Checking module:', module.title);
+      
+      // Module-level coding exercises
+      if (module.codingExercises) {
+        console.log('[CourseEditor] Module has codingExercises:', module.codingExercises);
+        for (const exercise of module.codingExercises) {
+          console.log('[CourseEditor] Checking exercise:', exercise.id, 'vs selectedNodeId:', state.selectedNodeId);
+          if (exercise.id === state.selectedNodeId) {
+            console.log('[CourseEditor] Found exercise in module:', exercise);
+            return exercise;
+          }
+        }
+      }
+      
+      // Lesson-level coding exercises
+      if (module.lessons) {
+        console.log('[CourseEditor] Module has lessons:', Array.isArray(module.lessons) ? module.lessons.length : 0);
+        for (const lesson of module.lessons) {
+          console.log('[CourseEditor] Checking lesson:', lesson.title);
+          if (lesson.codingExercises) {
+            console.log('[CourseEditor] Lesson has codingExercises:', lesson.codingExercises);
+            for (const exercise of lesson.codingExercises) {
+              console.log('[CourseEditor] Checking lesson exercise:', exercise.id, 'vs selectedNodeId:', state.selectedNodeId);
+              if (exercise.id === state.selectedNodeId) {
+                console.log('[CourseEditor] Found exercise in lesson:', exercise);
+                return exercise;
+              }
+            }
+          }
+        }
+      }
+    }
+    
+    console.log('[CourseEditor] No exercise found for selectedNodeId:', state.selectedNodeId);
+    return undefined;
+  };
+
   if (state.isLoading) {
     return (
       <div className="h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-        <LoadingSpinner size="lg" />
+        <LoadingSpinner size={48} />
       </div>
     );
   }
@@ -1317,7 +1367,7 @@ export default function CourseEditorPage() {
         {!state.isSidebarCollapsed && (
           <div
             className="bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col relative flex-shrink-0"
-            style={{ width: state.sidebarWidth }}
+            style={{ width: `${state.sidebarWidth}px` }}
           >
             <CourseSidebar
               course={courseNode}
@@ -1364,6 +1414,89 @@ export default function CourseEditorPage() {
                 quiz={getSelectedQuiz()} 
                 onSave={handleQuizSave} 
               />
+            ) : state.selectedNodeId && getSelectedNodeType() === 'coding-exercise' ? (
+              <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 h-full flex flex-col">
+                {(() => {
+                  const selectedExercise = getSelectedCodingExercise();
+                  
+                  // Convert course TestCase to playground TestCase by adding id
+                  const playgroundTestCases = (selectedExercise?.testCases || []).map((testCase, index) => ({
+                    id: `tc_${Date.now()}_${index}`,
+                    input: testCase.input,
+                    expectedOutput: testCase.expectedOutput,
+                    description: testCase.description,
+                  }));
+                  
+                  // Ensure language is one of the allowed values
+                  const language = (selectedExercise?.programmingLanguage || 'javascript') as 'javascript' | 'html' | 'css' | 'python';
+                  
+                  const exerciseProps = {
+                    mode: (state.isPreviewMode ? 'learner' : 'creator') as 'learner' | 'creator',
+                    title: selectedExercise?.title || '',
+                    description: selectedExercise?.description || '',
+                    initialCode: selectedExercise?.initialCode || '',
+                    testCases: playgroundTestCases,
+                    language,
+                  };
+                  
+                  console.log('[CourseEditor] ExercisePlayground props:', exerciseProps);
+                  console.log('[CourseEditor] Selected exercise:', selectedExercise);
+                  
+                  return (
+                    <ExercisePlayground
+                      {...exerciseProps}
+                      onChange={(exercise) => {
+                        console.log('[CourseEditor] ExercisePlayground onChange called with:', exercise);
+                        if (selectedExercise) {
+                          // Convert playground TestCase back to course TestCase by removing id
+                          const courseTestCases = exercise.testCases.map(({ id, ...testCase }) => testCase);
+                          
+                          // Update the exercise in the course structure
+                          setState(prev => {
+                            const updatedCourse = { ...prev.course };
+                            // Find and update the exercise
+                            for (const module of updatedCourse.modules || []) {
+                              if (module.codingExercises) {
+                                const exerciseIndex = module.codingExercises.findIndex(e => e.id === selectedExercise.id);
+                                if (exerciseIndex >= 0) {
+                                  module.codingExercises[exerciseIndex] = {
+                                    ...module.codingExercises[exerciseIndex],
+                                    title: exercise.title,
+                                    description: exercise.description,
+                                    initialCode: exercise.initialCode,
+                                    testCases: courseTestCases,
+                                  };
+                                  console.log('[CourseEditor] Updated exercise in module');
+                                  return { ...prev, course: updatedCourse };
+                                }
+                              }
+                              if (module.lessons) {
+                                for (const lesson of module.lessons) {
+                                  if (lesson.codingExercises) {
+                                    const exerciseIndex = lesson.codingExercises.findIndex(e => e.id === selectedExercise.id);
+                                    if (exerciseIndex >= 0) {
+                                      lesson.codingExercises[exerciseIndex] = {
+                                        ...lesson.codingExercises[exerciseIndex],
+                                        title: exercise.title,
+                                        description: exercise.description,
+                                        initialCode: exercise.initialCode,
+                                        testCases: courseTestCases,
+                                      };
+                                      console.log('[CourseEditor] Updated exercise in lesson');
+                                      return { ...prev, course: updatedCourse };
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                            return prev;
+                          });
+                        }
+                      }}
+                    />
+                  );
+                })()}
+              </div>
             ) : state.selectedNodeId ? (
               <div className="max-w-4xl mx-auto">
                 <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">

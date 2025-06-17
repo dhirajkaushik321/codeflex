@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Button from '../ui/Button';
-import SandpackEditor from './SandpackEditor';
+import MonacoEditor from './MonacoEditor';
 
 interface PlaygroundProps {
   language: 'javascript' | 'html' | 'css' | 'python';
@@ -44,7 +44,7 @@ export const Playground: React.FC<PlaygroundProps> = ({
       )}
       
       <div className="mb-3">
-        <SandpackEditor
+        <MonacoEditor
           initialCode={code}
           language={language}
           readOnly={readOnly}
