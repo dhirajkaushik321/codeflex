@@ -158,7 +158,6 @@ export interface MCQ {
 }
 
 export interface TestCase {
-  id: string;
   input: string;
   expectedOutput: string;
   description?: string;
