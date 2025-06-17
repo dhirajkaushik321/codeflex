@@ -19,13 +19,15 @@ import {
 import { Course, Module, Lesson, Page, Quiz } from '@/types/course';
 import Button from '@/components/ui/Button';
 import CourseSidebar, { CourseNode } from '@/components/course-authoring/CourseSidebar';
-import QuillEditor from '@/components/course-authoring/QuillEditor';
+import dynamic from 'next/dynamic';
+const QuillEditor = dynamic(() => import('@/components/course-authoring/QuillEditor'), { ssr: false });
 import courseService from '@/services/courseService';
 import { useToast } from '@/contexts/ToastContext';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import { AxiosError } from 'axios';
 import QuizBuilder from '@/components/course-authoring/QuizBuilder';
+import QuillPlaygroundRenderer from '@/components/course-authoring/QuillPlaygroundRenderer';
 
 interface CourseEditorState {
   course: Partial<Course>;
@@ -1365,13 +1367,17 @@ export default function CourseEditorPage() {
             ) : state.selectedNodeId ? (
               <div className="max-w-4xl mx-auto">
                 <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-                  <QuillEditor
-                    key={state.selectedNodeId}
-                    content={getSelectedNodeContent()}
-                    onChange={handleContentUpdate}
-                    placeholder="Start writing your content..."
-                    className="min-h-[500px]"
-                  />
+                  {state.isPreviewMode ? (
+                    <QuillPlaygroundRenderer html={getSelectedNodeContent()} />
+                  ) : (
+                    <QuillEditor
+                      key={state.selectedNodeId}
+                      content={getSelectedNodeContent()}
+                      onChange={handleContentUpdate}
+                      placeholder="Start writing your content..."
+                      className="min-h-[500px]"
+                    />
+                  )}
                 </div>
               </div>
             ) : (

@@ -257,53 +257,67 @@ export default function QuizBuilder({ quiz, onSave }: QuizBuilderProps) {
 
   return (
     <div className="w-full max-w-4xl mx-auto">
-      {/* Quiz Header */}
-      <div className="mb-6 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+      {/* Quiz Header - Compact, lively, and visually appealing */}
+      <div className="mb-8 flex flex-col items-center">
+        <div className="flex items-center gap-3 mb-2 animate-fade-in">
+          <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 shadow-md">
+            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M16.862 3.487A9.001 9.001 0 013 12c0 4.97 4.03 9 9 9s9-4.03 9-9a9.001 9.001 0 00-4.138-7.513M15 9h.01M9 9h.01M8 13a4 4 0 008 0" /></svg>
+          </span>
+          <input
+            type="text"
+            value={quizTitle}
+            onChange={(e) => setQuizTitle(e.target.value)}
+            className="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white bg-transparent border-none outline-none focus:ring-0 text-center tracking-tight px-2"
+            placeholder="Quiz Title"
+            maxLength={60}
+            style={{ minWidth: '120px', maxWidth: '320px' }}
+          />
+        </div>
         <input
           type="text"
-          value={quizTitle}
-          onChange={(e) => setQuizTitle(e.target.value)}
-          className="text-2xl font-bold text-gray-900 dark:text-white bg-transparent border-none outline-none focus:ring-0 w-full mb-3"
-          placeholder="Quiz Title"
-        />
-        <QuillEditor
-          content={quizDescription}
-          onChange={setQuizDescription}
-          placeholder="Quiz description..."
-          className="min-h-[100px]"
+          value={quizDescription}
+          onChange={(e) => setQuizDescription(e.target.value)}
+          className="w-full max-w-md text-base text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full px-5 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-300 transition-all placeholder-gray-400 text-center animate-fade-in"
+          placeholder="Short description (optional)"
+          maxLength={100}
         />
       </div>
 
       <ProgressBar current={current + 1} total={questions.length} />
-      <div className={`bg-white dark:bg-gray-800 rounded-lg shadow-md px-10 py-8 w-full transition-all duration-300
+      <div className={`bg-white dark:bg-gray-800 rounded-2xl shadow-xl px-12 py-10 w-full transition-all duration-300 border border-gray-100 dark:border-gray-700
         ${q.feedback === 'correct' ? 'border-green-500 ring-2 ring-green-200 animate-[glow-green_1s_ease]' : ''}
         ${q.feedback === 'incorrect' ? 'border-red-500 ring-2 ring-red-200 animate-[glow-red_1s_ease]' : ''}
       `}>
-        <div className="flex items-center justify-between mb-6">
-          <div className="text-2xl font-semibold text-gray-900 dark:text-white">Question</div>
+        <div className="flex items-center justify-between mb-8">
+          <div className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+            <span className="inline-block w-2 h-8 bg-gradient-to-b from-blue-400 to-purple-400 rounded-full mr-2"></span>
+            Question
+          </div>
           <div className="flex gap-2">
             <button
               onClick={handlePrev}
               disabled={current === 0}
-              className="px-3 py-1 rounded bg-gray-100 text-gray-600 hover:bg-gray-200 disabled:opacity-50"
+              className="px-4 py-2 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 disabled:opacity-50 font-semibold shadow-sm transition-all"
             >Prev</button>
             <button
               onClick={handleNext}
               disabled={current === questions.length - 1}
-              className="px-3 py-1 rounded bg-gray-100 text-gray-600 hover:bg-gray-200 disabled:opacity-50"
+              className="px-4 py-2 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 disabled:opacity-50 font-semibold shadow-sm transition-all"
             >Next</button>
             <button
               onClick={handleAddQuestion}
-              className="px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+              className="px-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:from-blue-600 hover:to-purple-600 font-semibold shadow-md transition-all"
             >+ Add Question</button>
             <button
               onClick={handleDeleteQuestion}
               disabled={questions.length === 1}
-              className="px-3 py-1 rounded bg-red-100 text-red-600 hover:bg-red-200 disabled:opacity-50"
+              className="px-4 py-2 rounded-lg bg-red-100 text-red-600 hover:bg-red-200 disabled:opacity-50 font-semibold shadow-sm transition-all"
             >Delete</button>
           </div>
         </div>
-        <QuillEditor content={q.prompt} onChange={handlePromptChange} placeholder="Write your question..." />
+        <div className="mb-6">
+          <QuillEditor content={q.prompt} onChange={handlePromptChange} placeholder="Write your question..." />
+        </div>
         <OptionList
           options={q.options}
           selectedId={q.selectedId}
@@ -314,17 +328,17 @@ export default function QuizBuilder({ quiz, onSave }: QuizBuilderProps) {
         />
         <button
           onClick={handleAddOption}
-          className="w-full mt-4 py-2 rounded-md border-2 border-dashed border-gray-300 text-gray-500 hover:border-blue-400 hover:text-blue-600 transition-all duration-200 font-medium"
+          className="w-full mt-6 py-3 rounded-xl border-2 border-dashed border-blue-300 text-blue-500 hover:border-blue-400 hover:bg-blue-50 transition-all duration-200 font-semibold text-lg shadow-sm"
         >
           + Add Option
         </button>
-        <div className="flex gap-2 mt-6">
+        <div className="flex gap-3 mt-8 justify-center">
           {q.options.map((o: any, idx: number) => (
             <button
               key={o.id}
               onClick={() => handleSetCorrect(o.id)}
-              className={`px-3 py-1 rounded border text-sm font-medium transition-colors duration-150
-                ${q.correctId === o.id ? 'bg-blue-500 text-white border-blue-500' : 'bg-white text-gray-700 border-gray-300 hover:bg-blue-50'}`}
+              className={`px-4 py-2 rounded-lg border text-base font-semibold transition-colors duration-150 shadow-sm
+                ${q.correctId === o.id ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white border-blue-500' : 'bg-white text-gray-700 border-gray-300 hover:bg-blue-50'}`}
               aria-label={`Mark option ${idx + 1} as correct`}
             >
               {q.correctId === o.id ? 'Correct' : 'Mark Correct'}
@@ -332,7 +346,7 @@ export default function QuizBuilder({ quiz, onSave }: QuizBuilderProps) {
           ))}
         </div>
         <button
-          className="w-full mt-6 py-3 rounded-md bg-gradient-to-r from-blue-500 to-blue-600 text-white text-lg font-semibold shadow-md transition-transform duration-150 active:scale-95 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed"
+          className="w-full mt-10 py-4 rounded-xl bg-gradient-to-r from-blue-500 to-purple-500 text-white text-xl font-bold shadow-lg transition-transform duration-150 active:scale-95 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed"
           disabled={!q.selectedId}
           onClick={handleSubmit}
         >
@@ -347,6 +361,13 @@ export default function QuizBuilder({ quiz, onSave }: QuizBuilderProps) {
         @keyframes glow-red {
           0% { box-shadow: 0 0 0 0 #ef444433; }
           100% { box-shadow: 0 0 0 8px #ef444400; }
+        }
+        @keyframes fade-in {
+          from { opacity: 0; transform: translateY(-10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+          animation: fade-in 0.7s cubic-bezier(0.4,0,0.2,1);
         }
       `}</style>
     </div>

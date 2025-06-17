@@ -1,6 +1,8 @@
 'use client';
 
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback, useState } from 'react';
+import Modal from '../ui/Modal';
+import { Edit3 } from 'lucide-react';
 
 interface QuillEditorProps {
   content: string;
@@ -19,14 +21,21 @@ export default function QuillEditor({
 }: QuillEditorProps) {
   const editorRef = useRef<HTMLDivElement>(null);
   const quillRef = useRef<any>(null);
+  const [quillLoaded, setQuillLoaded] = useState(false);
+  const [inserting, setInserting] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [code, setCode] = useState('');
 
   // Initialize Quill
   useEffect(() => {
     let quillInstance: any = null;
     let destroyed = false;
-    import('quill').then((QuillModule) => {
+    let Quill: any;
+    (async () => {
+      if (typeof window === 'undefined') return;
+      const QuillModule = await import('quill');
+      Quill = QuillModule.default;
       if (destroyed || !editorRef.current) return;
-      const Quill = QuillModule.default;
       const toolbarOptions = [
         [{ 'header': [1, 2, 3, false] }],
         ['bold', 'italic', 'underline', 'strike'],
@@ -52,13 +61,53 @@ export default function QuillEditor({
         const html = quillInstance.root.innerHTML;
         if (html !== content) onChange(html);
       });
-    });
+      setQuillLoaded(true);
+    })();
     return () => {
       destroyed = true;
       if (quillRef.current) quillRef.current = null;
       if (editorRef.current) editorRef.current.innerHTML = '';
     };
-  }, []); // Only on mount/unmount
+  }, []);
+
+  // Remove visual marker rendering - just show raw markers to keep Quill editable
+  // useEffect(() => {
+  //   // Removed to fix typing issues
+  // }, [quillLoaded, content]);
+
+  // Simple edit handler - only open modal when clicking directly on playground marker text
+  // useEffect(() => {
+  //   if (!quillLoaded || !editorRef.current) return;
+  //   const container = editorRef.current;
+  //   const handleEditClick = (e: any) => {
+  //     const target = e.target;
+  //     
+  //     // Only trigger if clicking directly on text that contains the playground marker
+  //     if (target.nodeType === Node.TEXT_NODE && target.textContent && target.textContent.includes('<!--PLAYGROUND:')) {
+  //       e.preventDefault();
+  //       e.stopPropagation();
+  //       
+  //       // Find the original marker in the content
+  //       const html = quillRef.current.root.innerHTML;
+  //       const markerRegex = /&lt;!--PLAYGROUND:([\s\S]*?)--&gt;/g;
+  //       let match;
+  //       let idx = 0;
+  //       while ((match = markerRegex.exec(html)) !== null) {
+  //         if (idx === 0) { // For now, just edit the first one found
+  //           const code = decodeURIComponent(match[1]);
+  //           setEditCode(code);
+  //           setEditMarkerIndex(0);
+  //           setInserting(false);
+  //           setEditModalOpen(true);
+  //           break;
+  //         }
+  //         idx++;
+  //       }
+  //     }
+  //   };
+  //   container.addEventListener('click', handleEditClick);
+  //   return () => container.removeEventListener('click', handleEditClick);
+  // }, [quillLoaded]);
 
   // Update content if it changes from outside
   useEffect(() => {
@@ -79,8 +128,48 @@ export default function QuillEditor({
     return quillRef.current ? quillRef.current.getText() : '';
   }, []);
 
+  // Handle Save from modal (insert or edit)
+  const handleModalSave = () => {
+    if (!quillRef.current) return;
+    const encoded = encodeURIComponent(code);
+    if (inserting) {
+      // Insert new marker at selection or end
+      let range = quillRef.current.getSelection(true);
+      if (!range) {
+        const length = quillRef.current.getLength();
+        range = { index: length, length: 0 };
+      }
+      const marker = `&lt;!--PLAYGROUND:${encoded}--&gt;`;
+      quillRef.current.clipboard.dangerouslyPasteHTML(range.index, marker);
+      quillRef.current.setSelection(range.index + marker.length, 0);
+      // Update content and call onChange
+      setTimeout(() => {
+        onChange(quillRef.current.root.innerHTML);
+      }, 0);
+    }
+    setModalOpen(false);
+    setCode('');
+    setInserting(false);
+  };
+
   return (
     <div className={`quill-editor border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden ${className}`}>
+      {/* Custom Toolbar with Playground Button */}
+      <div className="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+        <button
+          type="button"
+          className="px-3 py-1 rounded bg-gradient-to-r from-blue-500 to-purple-500 text-white font-semibold shadow hover:from-blue-600 hover:to-purple-600 transition-all"
+          onClick={() => {
+            setCode("console.log('Hello, world!');");
+            setInserting(true);
+            setModalOpen(true);
+          }}
+          disabled={readOnly}
+          title="Insert JavaScript Playground"
+        >
+          <span role="img" aria-label="Playground">🧪</span> JS Playground
+        </button>
+      </div>
       <div 
         ref={editorRef}
         className="min-h-[400px]"
@@ -90,11 +179,34 @@ export default function QuillEditor({
           lineHeight: '1.6'
         }}
       />
-      
       {/* Character count */}
       <div className="bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 px-4 py-2 text-xs text-gray-500 dark:text-gray-400">
         {getText().length} characters
       </div>
+      {/* Edit Playground Modal */}
+      <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title="Insert JavaScript Playground" size="md">
+        <textarea
+          value={code}
+          onChange={e => setCode(e.target.value)}
+          className="w-full min-h-[120px] font-mono text-base bg-[#181c23] text-[#d1d5db] p-4 outline-none resize-y border-none rounded-lg mb-4"
+          spellCheck={false}
+          autoFocus
+        />
+        <div className="flex justify-end gap-3">
+          <button
+            className="px-4 py-2 rounded bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition"
+            onClick={() => setModalOpen(false)}
+          >
+            Cancel
+          </button>
+          <button
+            className="px-4 py-2 rounded bg-gradient-to-r from-blue-500 to-purple-500 text-white font-semibold shadow hover:from-blue-600 hover:to-purple-600 transition"
+            onClick={handleModalSave}
+          >
+            Save
+          </button>
+        </div>
+      </Modal>
     </div>
   );
 } 
